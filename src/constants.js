@@ -1,0 +1,39 @@
+export const USER = {
+  AUTH: {
+    LOGGED_IN: 'USER_LOGGED_IN',
+    LOGGED_OUT: 'USER_LOGGED_OUT'
+  }
+}
+
+export const DEPLOYMENT = {
+  RUNNING: {
+    LIST: 'RUNNING_DEPLOYMENTS_LIST'
+  }
+}
+
+export const NOTIFICATION = {
+  SUCCESS: {
+    SHOW: 'SUCCESS_NOTIFICATION_SHOW',
+    HIDE: 'SUCCESS_NOTIFICATION_HIDE'
+  },
+  ERROR: {
+    SHOW: 'ERROR_NOTIFICATION_SHOW',
+    HIDE: 'ERROR_NOTIFICATION_HIDE'
+  }
+}
+
+export const MOMENT_DATE_TIME_FORMAT = 'HH:mm D/M/YY'
+
+export const DRAWER = {
+  METHOD: {
+    CREATE: 'CREATE_DRAWER',
+    EDIT: 'EDIT_DRAWER'
+  }
+}
+
+export const FORM = {
+  ACTION_TYPE: {
+    CREATE: 'CREATE_FORM',
+    EDIT: 'EDIT_FORM'
+  }
+}

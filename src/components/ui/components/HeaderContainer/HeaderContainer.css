@@ -1,0 +1,46 @@
+.header-container .white-header {
+  padding: 0;
+  background-color: #ffffff; }
+
+.header-container .header-wrapper {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto; }
+
+.header-container .logo {
+  max-height: 35px;
+  padding: 10px 15px 6px; }
+
+.header-container .user-name {
+  float: right;
+  line-height: 55px;
+  color: #54585a;
+  margin-right: 15px; }
+
+.header-container .more-menu {
+  float: right;
+  padding: 3px 0;
+  margin-right: 15px; }
+
+.header-container .button-area {
+  float: right;
+  margin-top: 8px; }
+
+.header-container .left-part {
+  float: left;
+  height: 56px; }
+  .header-container .left-part .back-icon {
+    float: left;
+    width: 56px;
+    border-right: 1px solid #393b3e;
+    text-align: center;
+    height: 100%; }
+    .header-container .left-part .back-icon:hover svg {
+      fill: #131518; }
+    .header-container .left-part .back-icon svg {
+      margin-top: 9px;
+      fill: #393b3e;
+      width: 40px;
+      height: 40px; }
+  .header-container .left-part img {
+    float: left; }

@@ -1,0 +1,16 @@
+.show .button-area button:last-child {
+  margin-left: 10px; }
+
+.show .basic-info {
+  display: flex;
+  padding: 15px;
+  justify-content: space-between;
+  margin-top: 15px; }
+
+.show .image {
+  max-width: 90%;
+  margin: 15px auto;
+  display: block; }
+
+.show .bottom-padding {
+  padding-bottom: 20px; }

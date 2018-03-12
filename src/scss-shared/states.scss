@@ -1,0 +1,19 @@
+@import './variables.scss';
+
+.finished, .deleted, .running {
+  padding: 3px 10px;
+  border-radius: 14px;
+}
+
+.finished {
+  background-color: $color_green; 
+  color: $color_white;
+}
+.deleted {
+  background-color: $color_grey;
+  color: $color_white;
+}
+.running {
+  background-color: $color_secondary;
+  color: $color_white;
+}

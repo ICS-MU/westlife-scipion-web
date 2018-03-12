@@ -1,0 +1,47 @@
+.button-area .btn .left-icon {
+  margin-right: 5px; }
+
+.button-area .btn .right-icon {
+  margin-left: 5px; }
+
+.button-area .btn.color-grey {
+  background-color: #393b3e;
+  color: #ffffff; }
+  .button-area .btn.color-grey:hover {
+    background-color: #131518; }
+
+.button-area .btn.color-white {
+  background-color: #ffffff;
+  color: #393b3e; }
+  .button-area .btn.color-white:hover {
+    background-color: #e5e5e5; }
+
+.button-area .btn.color-red {
+  background-color: #e53935;
+  color: #ffffff; }
+  .button-area .btn.color-red:hover {
+    background-color: #ab000d; }
+
+.button-area .btn.color-green {
+  background-colro: #00c853;
+  color: #00c853; }
+  .button-area .btn.color-green:hover {
+    background-color: #009624; }
+
+.icon-button .color-secondary {
+  fill: #00b2a9; }
+
+.icon-button .color-red {
+  fill: #e53935; }
+
+.icon-button .color-primary {
+  fill: #3399d5; }
+
+.icon-button:hover .color-secondary {
+  fill: #00827a; }
+
+.icon-button:hover .color-red {
+  fill: #ab000d; }
+
+.icon-button:hover .color-primary {
+  fill: #006ba3; }

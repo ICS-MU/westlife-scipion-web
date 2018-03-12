@@ -1,0 +1,31 @@
+.App {
+  height: 100%;
+  overflow: auto; }
+
+.snackbar svg {
+  display: block;
+  float: left;
+  margin-right: 7px; }
+  .snackbar svg.green {
+    fill: #00c853; }
+  .snackbar svg.red {
+    fill: #e53935; }
+
+.snackbar span {
+  margin-top: 3px;
+  float: left;
+  display: block; }
+
+.snackbar .link {
+  color: #3399d5;
+  line-height: 24px;
+  display: block;
+  text-transform: none; }
+  .snackbar .link svg {
+    fill: #3399d5;
+    float: right;
+    display: block;
+    margin-right: 0; }
+  .snackbar .link:hover {
+    opacity: 0.7;
+    background: transparent; }
