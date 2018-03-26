@@ -1,0 +1,5 @@
+[api-dev.scipion]
+api-dev.scipion.ics.muni.cz ansible_user=ubuntu
+
+[api.scipion]
+api.scipion.ics.muni.cz ansible_user=ubuntu

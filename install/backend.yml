@@ -1,0 +1,96 @@
+
+- name: Deploy backend directory
+  hosts: api-dev.scipion
+  become: "true"
+
+  vars_files:
+    - vars/vars.yml
+
+  tasks:
+
+  - name: Install m4 package
+    apt:
+      name:             m4
+      state:            present
+      update_cache:     yes
+      cache_valid_time: 3600
+
+  - name: Create Backend user
+    user:
+      name: "{{ be_user }}"
+      comment: "Backend user"
+      state: present
+
+  - name: Create directories under /var/scipion/
+    file:
+      path: /var/{{item}}
+      state: directory
+      mode: 0775
+      owner: "{{be_user}}"
+      group: "{{be_group}}"
+    with_items:
+      - scipion
+      - scipion/workdir
+      - scipion/workdir/deleted
+      - scipion/template
+      - scipion/to_deploy
+      - scipion/to_delete
+      - scipion/deploying
+      - scipion/deleting
+      - scipion/deployed
+      - scipion/deleted
+      - scipion/src
+      - scipion/log
+
+  - name: Copy backend dir
+    copy:
+      src: "{{ be_src_dir }}{{ item }}"
+      dest: "{{be_dir}}backend/"
+    with_items:
+      - deploy_scipion.py
+      - directories.py
+      - get_resources.py
+      - undeploy_scipion.py
+      - init.py
+
+  - name: Copy and template bash scripts
+    template:
+      src: "{{ item.src }}"
+      dest: "{{item.dest}}"
+    with_items:
+      - {src: "{{ be_src_dir }}renew_proxy.j2",dest: "{{be_dir}}backend/renew_proxy.sh"}
+      - {src: "{{ be_src_dir }}deploy_scipion.j2",dest: "{{be_dir}}backend/deploy_scipion.sh"}
+      - {src: "{{ be_src_dir }}undeploy_scipion.j2",dest: "{{be_dir}}backend/undeploy_scipion.sh"}
+
+  - name: Clone repository to template dir
+    git:
+      repo: "https://github.com/ICS-MU/westlife-cloudify-scipion"
+      dest: "{{be_dir}}template"
+      depth: 1
+      version: "HEAD"
+
+
+  - name: Deploy cron job
+    cron:
+      minute: "5"
+      name: "Scipion deploy cron job"
+      cron_file: "scipion-deploy"
+      user: "{{be_user}}"
+      job: "{{be_dir}}backend/deploy_scipion.py >> {{be_dir}}log/deploy.log 2>&1"
+
+  - name: Undeploy cron job
+    cron:
+      minute: "5"
+      name: "Scipion undeploy cron job"
+      cron_file: "scipion-undeploy"
+      user: "{{be_user}}"
+      job: "{{be_dir}}backend/undeploy_scipion.py >> {{be_dir}}log/deploy.log 2>&1"
+
+  - name: Renew proxy cron job
+    cron:
+      minute: "1"
+      hour: "1,5,9,13,17,21"
+      name: "Renew proxy"
+      cron_file: "scipion-renew-proxy"
+      user: "{{be_user}}"
+      job: "{{be_dir}}backend/renew_proxy.sh  >> {{be_dir}}log/renew.log 2>&1"

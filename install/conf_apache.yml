@@ -1,0 +1,51 @@
+- name: Configure Apache and wsgi
+  hosts: api.scipion
+  become: true
+
+# according to https://www.digitalocean.com/community/tutorials/how-to-deploy-a-flask-application-on-an-ubuntu-vps
+
+
+  tasks:
+  - name: Install Apache and wsgi module
+    apt: name = {{ item }} state=present update_cache=yes cache_valid_time=3600
+    with_items:
+      - apache2
+      - libapache2-mod-wsgi
+      - python-dev
+    when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+  - name: Enable wsgi module
+    apache2_module:
+      state: present
+      name: wsgi
+    notify:
+      - Restart apache
+
+
+  - name: Apache site file
+    copy:
+      src: files/scipion-api.conf
+      dest: /etc/apache2/sites-available/scipion-api.conf
+    notify:
+      - Restart apache
+
+  - name: Enable site
+    command: a2ensite scipion-api.conf
+    args:
+      creates: /etc/apache2/sites-enabled/scipion-api.conf
+    notify:
+      - Restart apache
+
+  - name: WSGI file
+    copy:
+      src: files/scipion-api.wsgi
+      dest: /var/www/scipion-api/scipion-api.wsgi
+    notify:
+      - Restart apache
+
+  handlers:
+  - name: Restart apache
+    command: apache2ctl restart
+#    service:
+#      name: apache2
+#      state: restarted

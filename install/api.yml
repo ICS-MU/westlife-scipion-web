@@ -1,0 +1,40 @@
+- name: Install api.py
+  hosts: api-dev.scipion
+  become: "true"
+
+
+  vars_files:
+    - vars/vars.yml
+
+  tasks:
+
+  - name: Create directory
+    file:
+      path: "{{app_dir}}"
+      state: directory
+      mode: 0775
+      owner: "{{fe_user}}"
+      group: "{{fe_user}}"
+
+
+  - name: Copy api.py
+    copy:
+      src: "{{app_src_dir}}{{api_file}}"
+      dest: "{{app_dir}}{{api_file}}"
+#    notify:
+#      - Restart service
+
+
+  - name: Set permissions
+    file:
+      path: "{{app_dir}}api.py"
+      owner: "{{fe_user}}"
+      group: "{{fe_user}}"
+      mode: 0774
+
+  handlers:
+  - name: Restart apache
+    command: apache2ctl restart
+#    service:
+#      name: apache2
+#      state: restarted

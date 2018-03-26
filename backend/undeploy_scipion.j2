@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+WORKDIR="{{ be_dir }}workdir"
+
+cd $WORKDIR/$1
+source {{ be_dir }}cfy/bin/activate
+make cfy-undeploy > undelete_log.txt 2>&1
+#cd ..
+#mv $1 $1.deleted

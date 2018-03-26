@@ -1,0 +1,10 @@
+---
+
+be_src_dir: "../backend/"
+be_dir: "/var/scipion/"
+be_user: "be-user"
+be_group: "www-data"
+app_src_dir: "../app/"
+app_dir: "/var/www/scipion-api/"
+api_file: "api.py"
+fe_user: "www-data"

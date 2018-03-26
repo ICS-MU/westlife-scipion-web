@@ -1,0 +1,15 @@
+#!/bin/bash
+
+FILE=/tmp/x509up_u1000
+USERNAME={{ be_user }}
+GROUPNAME={{ be_group }}
+
+if [ ! -f $FILE ]
+then
+   touch $FILE
+else
+   sudo chown $USERNAME:$USERNAME $FILE
+fi
+
+voms-proxy-init --voms gputest.metacentrum.cz --cert /home/$USERNAME/.globus/robotpublic.pem --key /home/$USERNAME/.globus/robotprivate.pem --rfc
+sudo chown $USERNAME:$GROUPNAME $FILE

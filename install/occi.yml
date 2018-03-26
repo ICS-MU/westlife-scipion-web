@@ -1,0 +1,92 @@
+- name: Deploy OCCI and VOMS
+  hosts: api-dev.scipion
+  become: true
+
+  vars_files:
+    - vars/vars.yml
+#    app_dir: "/home/cuda/scipion-api-run/"
+
+  tasks:
+
+  - name: Add OCCI repo key
+    apt_key:
+      url: http://repository.egi.eu/community/keys/APPDBCOMM-DEB-PGP-KEY.asc
+      state: present
+
+# Add specified repository into sources list.
+  - name: Add repository
+    apt_repository:
+      repo: deb http://repository.egi.eu/community/software/rocci.cli/4.3.x/releases/ubuntu xenial main
+      state: present
+
+
+  - name: Install occi package
+    apt:
+      name:             occi-cli
+      state:            present
+      update_cache:     yes
+      cache_valid_time: 3600
+
+
+  - name: Add EUGridPMA repo key
+    apt_key:
+      url: https://dist.eugridpma.info/distribution/igtf/current/GPG-KEY-EUGridPMA-RPM-3
+      state: present
+
+  - name: Add repository UMD-3
+    apt_repository:
+      repo: deb http://repository.egi.eu/sw/production/cas/1/current egi-igtf core
+      state: present
+
+
+  - name: Add repository UMD-3
+    apt_repository:
+      repo: deb http://repository.egi.eu/sw/production/umd/3/debian/ squeeze main
+      state: present
+
+  - name: Add repository UMD-3-updates
+    apt_repository:
+      repo: deb http://repository.egi.eu/sw/production/umd/3/debian/ squeeze-updates main
+      state: present
+
+
+  - name: Install VOMS packages
+    apt:
+      name: voms-clients,ca-policy-egi-core,fetch-crl
+      state: latest
+      update_cache: yes
+      cache_valid_time: 3600
+
+
+  - name: Copy VOMS files
+    copy:
+      src: "{{ item }}"
+      dest: /etc/vomses
+    with_items:
+      - files/vomses/gputest.metacentrum.cz.voms1.grid.cesnet.cz
+      - files/vomses/gputest.metacentrum.cz.voms2.grid.cesnet.cz
+      - files/vomses/enmr.eu.voms2.cnaf.infn.it
+
+  - name: Create .globus directory
+    file:
+      path: "/home/{{be_user}}/.globus"
+      state: directory
+      owner: "{{be_user}}"
+      group: "{{be_user}}"
+      mode: 0700
+
+  - name: Copy robotprivate
+    copy:
+      src: globus/robotprivate.pem
+      dest: "/home/{{be_user}}/.globus"
+      owner: "{{be_user}}"
+      group: "{{be_user}}"
+      mode: 0400
+
+  - name: Copy robotpublic
+    copy:
+      src: globus/robotpublic.pem
+      dest: "/home/{{be_user}}/.globus"
+      owner: "{{be_user}}"
+      group: "{{be_user}}"
+      mode: 0600
