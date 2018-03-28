@@ -88,6 +88,15 @@ def get_occi_resource(resource_id):
                         list_of_resources.append(item)
     return list_of_resources
 
+def get_vncpasswd(deployment_id):
+    """Get VNC password from file."""
+    path_to_vncpasswd = WORKDIR + str(deployment_id) + "/vncpasswd"
+    vncpasswd = ""
+    if os.path.isfile(path_to_vncpasswd):
+        with open(path_to_vncpasswd) as f_vncpasswd:
+            vncpasswd = f_vncpasswd.read()
+    return vncpasswd
+
 def init_deployment(deployment2i):
     """Init deployment."""
     path = TODEPLOYDIR + str(deployment2i['id']) + ".json"
@@ -105,8 +114,8 @@ def deployment_details(deployment_2show):
     deployment[0]['log'] = url_for('get_log', deployment_id=deployment_2show, _external=True)
     deployment[0]['sshkey'] = url_for('get_sshkey', deployment_id=deployment_2show, _external=True)
     deployment[0]['outputs'] = url_for('get_outputs', deployment_id=deployment_2show, _external=True)
-    deployment[0]['vncpasswd'] = url_for('get_vncpasswd', deployment_id=deployment_2show, _external=True)
     deployment[0]['occi_resources'] = get_occi_resource(deployment_2show)
+    deployment[0]['vncpasswd'] = get_vncpasswd(deployment_2show)
     return deployment[0]
 
 
@@ -179,19 +188,6 @@ def get_outputs(deployment_id):
         with open(path_to_outputs) as f_out:
             outputs = json.load(f_out)
         return jsonify(outputs)
-    else:
-        return make_response(jsonify({'error': 'Not found'}), 404)
-
-
-@app.route('/scipion/api/deployments/<int:deployment_id>/vncpasswd', methods=['GET'])
-@auth.login_required
-def get_vncpasswd(deployment_id):
-    """Get VNC password from file."""
-    path_to_vncpasswd = WORKDIR + str(deployment_id) + "/vncpasswd"
-    if os.path.isfile(path_to_vncpasswd):
-        with open(path_to_vncpasswd) as f_vncpasswd:
-            vncpasswd = f_vncpasswd.read()
-        return jsonify({'vncpasswd': vncpasswd.rstrip()})
     else:
         return make_response(jsonify({'error': 'Not found'}), 404)
 

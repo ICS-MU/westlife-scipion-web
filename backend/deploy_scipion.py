@@ -21,7 +21,7 @@ def get_random_passwd():
 
 def set_vnc_password(id_to_set_pwd):
     """Set password for vnc access."""
-    passwd_file = WORK_DIRNAME + id_to_set_pwd + "/vncpasswd.txt"
+    passwd_file = WORK_DIRNAME + id_to_set_pwd + "/vncpasswd"
     replace_file = WORK_DIRNAME + id_to_set_pwd + "/resources/puppet/manifests/scipion_olin.pp"
 
     if not os.path.exists(passwd_file):

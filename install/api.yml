@@ -2,7 +2,6 @@
   hosts: api-dev.scipion
   become: "true"
 
-
   vars_files:
     - vars/vars.yml
 
@@ -16,21 +15,15 @@
       owner: "{{fe_user}}"
       group: "{{fe_user}}"
 
-
   - name: Copy api.py
     copy:
       src: "{{app_src_dir}}{{api_file}}"
       dest: "{{app_dir}}{{api_file}}"
-#    notify:
-#      - Restart service
-
-
-  - name: Set permissions
-    file:
-      path: "{{app_dir}}api.py"
       owner: "{{fe_user}}"
       group: "{{fe_user}}"
       mode: 0774
+#    notify:
+#      - Restart service
 
   handlers:
   - name: Restart apache
