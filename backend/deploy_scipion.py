@@ -6,19 +6,49 @@ import json
 import shutil
 import sys
 import logging.handlers
+import random, string
 from directories import *  # pylint: disable=W0614,W0401
 
 deploy_attempts = 3
+
+def get_random_passwd():
+    """Generate and return random string."""
+    N = 8
+    result = ""
+    for i in range(N):
+        result += random.choice(string.ascii_lowercase + string.ascii_uppercase + string.digits)
+    return result
+
+def set_vnc_password(id_to_set_pwd):
+    """Set password for vnc access."""
+    passwd_file = WORK_DIRNAME + id_to_set_pwd + "/vncpasswd.txt"
+    replace_file = WORK_DIRNAME + id_to_set_pwd + "/resources/puppet/manifests/scipion_olin.pp"
+
+    if not os.path.exists(passwd_file):
+        logger.debug("Setting VNC password.")
+        passwd = get_random_passwd()
+        with open(replace_file) as f:
+            newText = f.read().replace('Scipion4u', passwd)
+
+        with open(replace_file, "w") as f:
+            f.write(newText)
+
+        with open(passwd_file, "w") as f:
+            f.write(passwd)
+
+    else:
+        logger.debug("VNC password already present.")
 
 
 def deploy_scipion(id_to_deploy):
     """Deploy Scipion"""
     sci_dirname = WORK_DIRNAME + id_to_deploy
     try:
-        os.mkdir(sci_dirname)
+        shutil.copytree(SCIPION_WORK_DIRNAME + "template", sci_dirname)
     except:
         logger.error("Error creating directory: %s", sci_dirname)
         sys.exit(1)
+    set_vnc_password(id_to_deploy)
     os_result = os.system("/bin/bash /var/scipion/backend/deploy_scipion.sh " + id_to_deploy)
     logger.debug("Return value is: %s", str(os_result))
     logger.debug("Updating records for %s", id_to_deploy)

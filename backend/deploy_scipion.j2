@@ -2,8 +2,7 @@
 TEMPLATEDIR="{{ be_dir }}template"
 WORKDIR="{{ be_dir }}workdir"
 
-cp -a $TEMPLATEDIR/. $WORKDIR/$1
 cd $WORKDIR/$1
-source {{ be_dir }}cfy/bin/activate /log.txt 2>&1
+source /home/{{ be_user }}/cfy/bin/activate /log.txt 2>&1
 make cfy-deploy >> log.txt 2>&1
 make cfy-outputs | tail -n +2 > outputs.json
