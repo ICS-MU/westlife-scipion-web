@@ -8,8 +8,8 @@ if [ ! -f $FILE ]
 then
    touch $FILE
 else
-   sudo chown $USERNAME:$USERNAME $FILE
+   sudo chown $USERNAME:$GROUPNAME $FILE
 fi
 
-voms-proxy-init --voms gputest.metacentrum.cz --cert /home/$USERNAME/.globus/robotpublic.pem --key /home/$USERNAME/.globus/robotprivate.pem --rfc
+voms-proxy-init --voms gputest.metacentrum.cz --cert /home/$USERNAME/.globus/robotpublic.pem --key /home/$USERNAME/.globus/robotprivate.pem --rfc --out $FILE
 sudo chown $USERNAME:$GROUPNAME $FILE

@@ -20,6 +20,12 @@
       name: "{{ be_user }}"
       comment: "Backend user"
       state: present
+      shell: /bin/bash
+
+  - name: Add Backend user to sudo
+    template:
+      src: "backend-user.j2"
+      dest: "/etc/sudoers.d/backend-user"
 
   - name: Create directories under /var/scipion/
     file:

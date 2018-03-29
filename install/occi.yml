@@ -61,7 +61,7 @@
   - name: Copy VOMS files
     copy:
       src: "{{ item }}"
-      dest: /etc/vomses
+      dest: /etc/vomses/
     with_items:
       - files/vomses/gputest.metacentrum.cz.voms1.grid.cesnet.cz
       - files/vomses/gputest.metacentrum.cz.voms2.grid.cesnet.cz
