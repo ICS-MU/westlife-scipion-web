@@ -1,0 +1,40 @@
+.list .list-appbar, .list .show-appbar, .show .list-appbar, .show .show-appbar {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  padding: 10px 15px;
+  height: 60px;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.2), 0px 3px 1px -2px rgba(0, 0, 0, 0.12); }
+  .list .list-appbar .list-title, .list .list-appbar .show-title, .list .show-appbar .list-title, .list .show-appbar .show-title, .show .list-appbar .list-title, .show .list-appbar .show-title, .show .show-appbar .list-title, .show .show-appbar .show-title {
+    color: #ffffff;
+    margin-top: 8px; }
+
+.list table tr td.no-rows, .show table tr td.no-rows {
+  text-align: center;
+  font-size: larger;
+  font-weight: bold;
+  padding-top: 20px;
+  padding-bottom: 20px; }
+
+.list table tr td.name, .show table tr td.name {
+  font-weight: bold;
+  font-size: 0.9rem; }
+
+.list table tr td.datetime, .show table tr td.datetime {
+  word-spacing: 5px; }
+
+.list table tr td.align-right, .list table tr th.align-right, .show table tr td.align-right, .show table tr th.align-right {
+  text-align: right; }
+
+.list table thead tr, .show table thead tr {
+  height: 40px; }
+
+.list table tbody tr:nth-child(2n + 1), .show table tbody tr:nth-child(2n + 1) {
+  background-color: #f1f4f6; }
+
+.list table tbody tr.clickable, .show table tbody tr.clickable {
+  cursor: pointer; }
+  .list table tbody tr.clickable:hover .name, .show table tbody tr.clickable:hover .name {
+    color: #3399d5; }

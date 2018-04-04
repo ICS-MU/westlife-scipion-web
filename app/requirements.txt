@@ -1,0 +1,14 @@
+aniso8601==3.0.0
+click==6.7
+dependency-injector==3.11.3
+Flask==0.12.2
+Flask-Cors==3.0.3
+Flask-JWT-Simple==0.0.3
+Flask-RESTful==0.3.6
+itsdangerous==0.24
+Jinja2==2.10
+MarkupSafe==1.0
+PyJWT==1.6.1
+pytz==2018.3
+six==1.11.0
+Werkzeug==0.14.1

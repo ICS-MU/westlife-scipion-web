@@ -1,0 +1,74 @@
+@import './variables.scss';
+
+.button-area {
+  .btn {
+    .left-icon {
+      margin-right: 5px;
+    }
+    .right-icon {
+      margin-left: 5px;
+    }
+
+    &.color-grey {
+      background-color: $color_grey;
+      color: $color_white;
+      
+      &:hover {
+        background-color: $color_grey-hover;
+      }
+    }
+
+    &.color-white {
+      background-color: $color_white;
+      color: $color_grey;
+      
+      &:hover {
+        background-color: $color_white-hover;
+      }
+    }
+
+    &.color-red {
+      background-color: $color_red;
+      color: $color_white;
+      
+      &:hover {
+        background-color: $color_red-hover;
+      }
+    }
+
+    &.color-green {
+      background-colro: $color_green;
+      color: $color_green;
+      
+      &:hover {
+        background-color: $color_green-hover;
+      }
+    }
+  }
+}
+
+.icon-button {
+  .color-secondary {
+    fill: $color_secondary;
+  }
+  .color-red {
+    fill: $color_red;
+  }
+  .color-primary {
+    fill: $color_primary;
+  }
+
+  &:hover {
+    .color-secondary {
+      fill: $color_secondary-hover;
+    }
+
+    .color-red {
+      fill: $color_red-hover;
+    }
+
+    .color-primary {
+      fill: $color_primary-hover;
+    }
+  }
+}

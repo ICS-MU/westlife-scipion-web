@@ -1,0 +1,23 @@
+.login-wrapper {
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #667db6;
+  background: linear-gradient(to right, #006ba3, #3399D5, #3399D5, #006ba3); }
+
+.login {
+  width: 90%;
+  max-width: 400px; }
+  .login .paper {
+    padding: 40px 30px; }
+    .login .paper .logo {
+      text-align: center;
+      margin-bottom: 20px; }
+      .login .paper .logo img {
+        max-width: 150px; }
+    .login .paper .login-icon {
+      margin-left: 10px; }
+    .login .paper .title {
+      margin-bottom: 25px; }

@@ -1,0 +1,15 @@
+@import '../../scss-shared/variables.scss';
+
+.authenticated-layout {
+  min-height: 100%;
+  padding: 130px 0 70px 0;
+  box-sizing: border-box;
+  position: relative;
+  background-color: $color_grey-light;
+}
+
+.wrapper {
+  max-width: 1280px;
+  width: 90%;
+  margin: 0 auto;
+}

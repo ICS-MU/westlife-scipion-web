@@ -1,0 +1,15 @@
+.finished, .deleted, .running {
+  padding: 3px 10px;
+  border-radius: 14px; }
+
+.finished {
+  background-color: #00c853;
+  color: #ffffff; }
+
+.deleted {
+  background-color: #393b3e;
+  color: #ffffff; }
+
+.running {
+  background-color: #00b2a9;
+  color: #ffffff; }
