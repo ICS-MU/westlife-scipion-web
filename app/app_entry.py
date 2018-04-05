@@ -8,7 +8,7 @@ from api.users import IdentityResource
 from api.deployments import Deployments, Deployment, DeploymentLog
 
 def get_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_url_path="", static_folder="frontend")
 
     # trailing slashes accepted
     app.url_map.strict_slashes = False
@@ -53,7 +53,7 @@ def get_app():
             #name = request.environ['MELLON_name']
             name = bytearray(request.environ['MELLON_name'], 'iso-8859-1').decode('utf-8')
             email = request.environ['MELLON_mail']
-            id = request.environ['MELLON_eppn']
+            id = request.environ['MELLON_eduPersonUniqueId']
         except:
             return "No Shibboleth data. This page should not be accessed directly!"
         return render_template(
