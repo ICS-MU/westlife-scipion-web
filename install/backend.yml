@@ -36,8 +36,8 @@
       group: "{{be_group}}"
     with_items:
       - scipion
-      - scipion/workdir
-      - scipion/workdir/deleted
+      - scipion/deployments
+      - scipion/deployments/deleted
       - scipion/template
       - scipion/to_deploy
       - scipion/to_delete

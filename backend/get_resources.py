@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """ Get info from site with occi"""
 
 import subprocess
 import json
-from directories import *  # pylint: disable=W0614,W0401
+from bconstants import *  # pylint: disable=W0614,W0401
 
 
 OCCI_COMMON = "/usr/local/bin/occi --auth x509 --user-cred /tmp/x509up_u1000 --voms --o json "

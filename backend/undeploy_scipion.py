@@ -1,11 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Undeploy and delete deployments."""
 
 import os
 import json
 import shutil
 import logging.handlers
-from directories import *  # pylint: disable=W0614,W0401
+from b_constants import *  # pylint: disable=W0614,W0401
 
 UNDELETE_ATTEMPTS = 3
 
@@ -21,7 +21,7 @@ def un_deploy_scipion(id_to_delete):
 def is_scipion_deleted(id_to_delete):
     """ Returns result of un-deployment process. """
     ok_result_string = "CFY <local> 'uninstall' workflow execution succeeded"
-    result_file = WORK_DIRNAME + id_to_delete + "/undelete_log.txt"
+    result_file = DEPLOYMENTS_DIR + id_to_delete + "/undelete_log.txt"
 
     try:
         result_string = open(result_file).read()
@@ -38,18 +38,18 @@ def is_scipion_deleted(id_to_delete):
 def clean_up_files(deleted_filename):
     """ Changes records in database, moves files to appropriate folders."""
     deleted_id = os.path.splitext(deleted_filename)[0]
-    shutil.move(DELETING_DIRNAME + deleted_filename, DELETED_DIRNAME + deleted_filename)
-    shutil.move(WORK_DIRNAME + deleted_id, WORK_DIRNAME + "deleted/")
+    shutil.move(DELETING_DIR + deleted_filename, DELETED_DIR + deleted_filename)
+    shutil.move(DEPLOYMENTS_DIR + deleted_id, DEPLOYMENTS_DIR + "deleted/")
 
     logger.debug('Reading_database')
-    with open(DATABASE_FILENAME, 'r') as f_obj:
+    with open(DATABASE_FILE, 'r') as f_obj:
         deployments = json.load(f_obj)
     logger.debug("Changing_record %s", deleted_id)
     for deployment in deployments:
         if str(deployment['id']) == str(deleted_id):
             deployment['status'] = "deleted"
     logger.debug('Writing_database.')
-    with open(DATABASE_FILENAME, 'w') as f_obj:
+    with open(DATABASE_FILE, 'w') as f_obj:
         json.dump(deployments, f_obj)
 
 
@@ -58,7 +58,7 @@ logger = logging.getLogger('Sci_Un_deploy')
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-f = logging.handlers.RotatingFileHandler(UN_DEPLOY_LOG_FILENAME, maxBytes=1000000, backupCount=3)
+f = logging.handlers.RotatingFileHandler(UN_DEPLOY_LOG_FILE, maxBytes=1000000, backupCount=3)
 f.setLevel((logging.DEBUG))
 f.setFormatter(formatter)
 logger.addHandler(f)
@@ -70,11 +70,11 @@ logger.addHandler(ch)
 
 logger.debug('Starting undeploy.')
 
-if os.listdir(TO_DELETE_DIRNAME):
-    filename = os.listdir(TO_DELETE_DIRNAME)[0]
+if os.listdir(TO_DELETE_DIR):
+    filename = os.listdir(TO_DELETE_DIR)[0]
     deployment_id = os.path.splitext(filename)[0]
 
-    shutil.move(TO_DELETE_DIRNAME + filename, DELETING_DIRNAME + filename)
+    shutil.move(TO_DELETE_DIR + filename, DELETING_DIR + filename)
     logger.debug('Un-deploying %s', deployment_id)
 
     while UNDELETE_ATTEMPTS > 0:
