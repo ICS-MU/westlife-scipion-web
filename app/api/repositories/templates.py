@@ -1,17 +1,17 @@
 from typing import List
-from api.entities.template import TemplateEntity, TemplateEntityFactory
+from api.entities.template import TemplateEntity
 
 class TemplatesRepository:
-    """Deployments repository"""
+    """Templates repository"""
 
-    def __init__(self, factory: TemplateEntityFactory):
-        self.factory = factory
+    def get_all(self) -> List[TemplateEntity]:
+        return TemplateEntity.query.all()
 
-    def get(self, limit: int, offset: int) -> List[TemplateEntity]:
-        pass
-
-    def get_by_id(self, tempalte_id: int) -> TemplateEntity:
-        pass
+    def get_by_id(self, template_id: int) -> TemplateEntity:
+        template = TemplateEntity.query.get(template_id)
+        if template is None:
+            raise TemplateNotFoundException
+        return TemplateEntity.query.get(template_id)
 
 
 class TemplateException(Exception):
@@ -21,4 +21,3 @@ class TemplateException(Exception):
 class TemplateNotFoundException(TemplateException):
     """Template is not found exception"""
     pass
-

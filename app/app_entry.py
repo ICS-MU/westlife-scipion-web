@@ -92,6 +92,10 @@ def get_app():
     api.add_resource(Deployment, "/deployments/<int:deployment_id>")
     api.add_resource(DeploymentLog, "/deployments/<int:deployment_id>/log")
 
+    # templates
+    api.add_resource(Templates, "/templates")
+    api.add_resource(Template, "/templates/<int:template_id>")
+
     db.init_app(app)
     return app    
 

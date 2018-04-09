@@ -53,29 +53,3 @@ class TemplateEntity(BaseEntity):
             "cores": self.get_cores(),
             "olin_resource_tpl": self.get_olin_resource_tpl()
         }
-
-
-class TemplateEntityFactory(BaseEntityFactory):
-    """Template entity factory"""
-    mandatory_items = ["name", "memory", "cores", "olin_resource_tpl"]
-    optional_items = ["id"]
-
-    def crete_from_data(self, data: dict, check_mandatory_items: bool = True) -> TemplateEntity:
-        # remove None data items
-        data = Dictionary.delete_none_values(data)
-
-        # check data items
-        self._check_data_items(data, check_mandatory_items)
-
-        # setting template data
-        template = TemplateEntity(
-            name=data['name'],
-            memory=data['memory'],
-            cores=data['cores'],
-            olin_resource_tpl=data['olin_resource_tpl']
-        )
-
-        if "id" in data:
-            template.set_id(data['id'])
-
-        return template
