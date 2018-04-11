@@ -1,11 +1,16 @@
+import os
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_restful import Api
+from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_simple import ( JWTManager, create_jwt )
 from datetime import timedelta
 # disable CORS on production environment later ...
 from flask_cors import CORS
+import api.constants as const
 from api.users import IdentityResource
 from api.deployments import Deployments, Deployment, DeploymentLog
+from api.templates import Templates, Template
+from api.database import db
 
 def get_app():
     app = Flask(__name__, static_url_path="", static_folder="frontend")
@@ -23,6 +28,14 @@ def get_app():
     app.config['JWT_SECRET_KEY'] = "super_secret_scipion_cloudify_web_jwt_key"
     app.config['JWT_EXPIRES'] = timedelta(days=1)
     jwt = JWTManager(app)
+
+    # SQLite & SQLAlchemy DB setup
+    #app.config['SQLALCHEMY_DATABASE_URI'] = const.DATABASE
+    # for local development, memory storage
+    #app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite://"
+    #db = SQLAlchemy(app)
+    app.config['SQLALCHEMY_DATABASE_URI'] = const.DATABASE_URI
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # change JWT default error messages
     @jwt.expired_token_loader
@@ -50,7 +63,6 @@ def get_app():
     @app.route("/api/authenticate")
     def authenticate():
         try:
-            #name = request.environ['MELLON_name']
             name = bytearray(request.environ['MELLON_name'], 'iso-8859-1').decode('utf-8')
             email = request.environ['MELLON_mail']
             id = request.environ['MELLON_eduPersonUniqueId']
@@ -80,8 +92,16 @@ def get_app():
     api.add_resource(Deployment, "/deployments/<int:deployment_id>")
     api.add_resource(DeploymentLog, "/deployments/<int:deployment_id>/log")
 
+    # templates
+    api.add_resource(Templates, "/templates")
+    api.add_resource(Template, "/templates/<int:template_id>")
+
+    db.init_app(app)
     return app    
 
 
 if __name__ == "__main__":
-    get_app().run(debug=True, threaded=True)
+    app = get_app()
+    if not os.path.exists(const.DATABASE_URI):
+        db.create_all(app=app)
+    app.run(debug=True, threaded=True)

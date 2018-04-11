@@ -1,4 +1,8 @@
 from abc import ABC
+from api.database import db
+
+class BaseEntity(db.Model):
+    __abstract__ = True
 
 class BaseEntityFactory(ABC):
     """Abstract descendant of the Base entity factory"""

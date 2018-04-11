@@ -5,10 +5,12 @@ Flask==0.12.2
 Flask-Cors==3.0.3
 Flask-JWT-Simple==0.0.3
 Flask-RESTful==0.3.6
+Flask-SQLAlchemy==2.3.2
 itsdangerous==0.24
 Jinja2==2.10
 MarkupSafe==1.0
 PyJWT==1.6.1
 pytz==2018.3
 six==1.11.0
+SQLAlchemy==1.2.6
 Werkzeug==0.14.1
