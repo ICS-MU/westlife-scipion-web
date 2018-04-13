@@ -13,7 +13,8 @@ TEMPLATE_DIR = SCIPION_BACK_DIR + "template/"
 DEPLOYMENTS_DIR = SCIPION_BACK_DIR + "deployments/"
 
 DATABASE_FILE = SCIPION_BACK_DIR + 'deployments.json'
-TEMPLATES_FILE = SCIPION_BACK_DIR + 'templates.json'
+# TEMPLATES_FILE = SCIPION_BACK_DIR + 'templates.json'
+DATABASE = SCIPION_BACK_DIR + "scipion-cloudify.db"
 
 DEPLOY_LOG_FILE = SCIPION_BACK_DIR + 'deploy.log'
 UN_DEPLOY_LOG_FILE = SCIPION_BACK_DIR + 'un_deploy.log'
@@ -24,6 +25,8 @@ IMAGES_FILE = SCIPION_BACK_DIR + 'images.json'
 OLIN_RESOURCE_TPL_PLACEHOLDER = "medium2change"
 VNC_PASSWORD_PLACEHOLDER = "Scipion4All"
 
+
+STATUS_TO_DEPLOY = "to_deploy"
 STATUS_DEPLOYING = "deploying"
 STATUS_DEPLOYED = "deployed"
 STATUS_UNDEPLOYING = "undeploying"
