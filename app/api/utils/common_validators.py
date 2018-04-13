@@ -13,8 +13,8 @@ class BoundaryValidator(Validator):
         if max_value is not None and value > max_value:
             raise BoundaryValidationException(item_name + " maximal value is " + str(max_value))
 
-class CommonEntityValidator(Validator):
-    """Common entity validator"""
+class BaseEntityValidator(Validator):
+    """Base entity validator"""
 
     DEFAULT_PARAM_NAME = "Item"
 
@@ -33,6 +33,17 @@ class CommonEntityValidator(Validator):
                                                   + " characters.")
         if max_size is not None and string_length > max_size:
             raise BoundaryValidationException(param_name + " cannot be bigger than " + str(max_size) + " characters")
+
+    def _validate_integer_range(self, value: int, param_name: str = None, min_size: int = None, max_size: int = None,
+                                can_be_none: bool = False):
+        if value is None and can_be_none:
+            return
+        if param_name is None:
+            param_name = self.DEFAULT_PARAM_NAME
+        if min_size is not None and value < min_size:
+            raise BoundaryValidationException(param_name + " value must be at least " + str(min_size))
+        if max_size is not None and value > max_size:
+            raise BoundaryValidationException(param_name + " value cannot be greater than " + str(max_size))
 
     def _validate_value_in_list(self, value, values_list: list, param_name: str = None, can_be_none: bool = False):
         if value is None and can_be_none:

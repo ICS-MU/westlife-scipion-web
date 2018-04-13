@@ -1,10 +1,8 @@
-import os
-import json
-#import api.constants as const
 from flask import make_response
 from typing import List
 from api.entities.deployment import DeploymentEntity, DeploymentEntityFactory
-from api.utils.common_validators import CommonEntityValidator
+from api.utils.common_validators import BaseEntityValidator
+from api.database import db
 
 class DeploymentsRepository:
     """Deployments repository"""
@@ -24,7 +22,8 @@ class DeploymentsRepository:
         #return self.factory.create_from_data(deployment[0])
 
     def get_by_user_id(self, user_id: str, running: bool, limit: int, offset: int) -> List[DeploymentEntity]:
-        pass
+        return DeploymentEntity.query.order_by(DeploymentEntity.modified.desc()).limit(limit) \
+            .offset(offset).all()
         #deployments = []
         #if os.path.isfile(const.DEPLOYMENTS_DB_FILE):
         #    with open(const.DEPLOYMENTS_DB_FILE, "r") as f_obj:
@@ -59,10 +58,23 @@ class DeploymentsRepository:
         #with open(path_to_log, "r") as f_log:
         #    log = f_log.read()
 
+    def store(deployment: DeploymentEntity) -> DeploymentEntity:
+        new_deployment = deployment
+        db.session.dd(new_deployment)
+        db.session.commit()
+        return new_deployment
 
-class DeploymentsValidator(CommonEntityValidator):
+class DeploymentsValidator(BaseEntityValidator):
     """Deployments validator"""
-    pass
+
+    NAME_MAX_SIZE = 255
+    DATA_URL_MAX_SIZE = 1000
+    DAYS_DURATION_MAX_SIZE = 30
+
+    def validate(self, deployment: DeploymentEntity):
+        self._validate_string_size(deployment.get_name(), "Deployment's name", 1, self.NAME_MAX_SIZE)
+        self._validate_string_size(deployment.get_data_url(), "Deployment's data url", 1, self.DATA_URL_MAX_SIZE)
+        self._validate_integer_range(deployment.get_days_duration(), "Deployment's duration", 1, self.DAYS_DURATION_MAX_SIZE)
 
 class DeploymentException(Exception):
     """Deployment exception"""

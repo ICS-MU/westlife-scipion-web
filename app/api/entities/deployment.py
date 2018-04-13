@@ -1,9 +1,10 @@
 import os
 import datetime
 import api.constants as const
-from api.entities.base import BaseEntity, BaseEntityFactory
+from api.entities.base import BaseEntity, BaseEntityFactory, BaseEntityFactoryException
 from api.utils.dictionary import Dictionary
 from api.database import db
+from json.decoder import JSONDecodeError
 
 class DeploymentEntity(BaseEntity):
     """Deployment entity"""
@@ -13,6 +14,7 @@ class DeploymentEntity(BaseEntity):
     name = db.Column(db.String(255), nullable=False)
     status = db.Column(db.String(30), nullable=False)
     modified = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    days_duration = db.Column(db.Integer, nullable=False)
     data_url = db.Column(db.String(1000), nullable=False)
     olinip = db.Column(db.String(50), nullable=True)
     vnc_password = db.Column(db.String(255), nullable=True)
@@ -53,6 +55,13 @@ class DeploymentEntity(BaseEntity):
 
     def get_modified(self) -> str:
         return self.modified
+
+    def set_days_duration(self, deployment_days_duration: int) -> "DeploymentEntity":
+        self.days_duration = deployment_days_duration
+        return self
+
+    def get_days_duration(self) -> int:
+        return self.days_duration
 
     def set_data_url(self, deployment_data_url: str) -> "DeploymentEntity":
         self.data_url = deployment_data_url
@@ -95,6 +104,7 @@ class DeploymentEntity(BaseEntity):
             "name": self.get_name(),
             "status": self.get_status(),
             "modified": self.get_modified(),
+            "days_duration": self.get_days_duration(),
             "data_url": self.get_data_url(),
             "olinip": self.get_olinip(),
             "vnc_password": self.get_vnc_password(),
@@ -104,34 +114,27 @@ class DeploymentEntity(BaseEntity):
 
 class DeploymentEntityFactory(BaseEntityFactory):
     """Deployment entity factory"""
-    mandatory_items = ["user_id", "name", "data_url", "template_id"]
-    optional_items = ["id", "status", "modified"]
+    mandatory_items = ["user_id", "name", "data_url", "template_id", "days_duration"]
+    optional_items = []
 
-    def create_from_data(self, data: dict, check_mandatory_items: bool = True) -> DeploymentEntity:
-        # remove None data items
-        data = Dictionary.delete_none_values(data)
+    def create_from_post_data(self, data: dict, check_mandatory_items: bool = True) -> DeploymentEntity:
+        try:
+            # remove None data items
+            data = Dictionary.delete_none_values(data)
+            # check data items
+            self._check_data_items(data, check_mandatory_items)
+            deployment = DeploymentEntity(
+                user_id=data['user_id'], 
+                name=data['name'],
+                status=const.STATUS_TO_DEPLOY,
+                modified=datetime.datetime.utcnow(),
+                days_duration=data['days_duration'],
+                data_url=data['data_url'],
+                template_id=data['template_id']
+            )
+            return deployment
+        except JSONDecodeError:
+            raise DeploymentEntityFactoryException("Invalid JSON in request")
 
-        # check data items
-        self._check_data_items(data, check_mandatory_items)
-
-        # setting deployment data
-        deployment = DeploymentEntity(
-            user_id=data['user_id'], 
-            name=data['name'],
-            data_url=data['data_url'],
-            template_id=data['template_id']
-        )
-
-        if "id" in data:
-            deployment.set_id(data['id'])
-        if "status" in data:
-            deployment.set_status(data['status'])
-        if "modified" in data:
-            deployment.set_modified(data['modified'])
-        if "olinip" in data:
-            deployment.set_olinip(data['olinip'])
-        if "vnc_password" in data:
-            deployment.set_vnc_password(data['vnc_password'])
-
-        return deployment
-
+class DeploymentEntityFactoryException(BaseEntityFactoryException):
+    pass

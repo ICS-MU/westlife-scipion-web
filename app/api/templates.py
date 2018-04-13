@@ -18,7 +18,7 @@ class TemplatesResource(ApiResource):
 class Templates(TemplatesResource):
     """Templates resource"""
 
-    #@jwt_required
+    @jwt_required
     def get(self):
         templates = self.repository.get_all()
         templates_dict = []
@@ -32,7 +32,7 @@ class Templates(TemplatesResource):
 class Template(TemplatesResource):
     """Template resource"""
 
-    #@jwt_required
+    @jwt_required
     def get(self, template_id: int):
         try:
             template = self.repository.get_by_id(template_id)

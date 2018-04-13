@@ -8,7 +8,6 @@ class BaseEntityFactory(ABC):
     """Abstract descendant of the Base entity factory"""
 
     mandatory_items = []
-    optional_items = []
 
     def _check_data_items(self, data: dict, check_mandatory_items: bool = True):
         data_keys = [*data]
@@ -32,7 +31,6 @@ class BaseEntityFactory(ABC):
 
 class BaseEntityFactoryException(Exception):
     pass
-
 
 class InvalidDataItemsException(BaseEntityFactoryException):
     pass

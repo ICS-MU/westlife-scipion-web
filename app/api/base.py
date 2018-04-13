@@ -2,7 +2,8 @@ from flask import request
 from flask_restful import Resource
 from flask_jwt_simple import get_jwt_identity
 from functools import wraps
-from api.utils.common_validators import BoundaryValidator
+from typing import List
+from api.utils.common_validators import BoundaryValidator, ValidatorException
 
 
 def current_user(f):
@@ -21,8 +22,26 @@ class ApiResource(Resource):
     MAX_LIMIT = 50
 
     @staticmethod
+    def _get_request_data():
+        return request.get_json(force=True)
+
+    @staticmethod
     def _resource_not_allowed_result() -> tuple:
         return {"message": "Resource not allowed"}, 403
+
+    def _check_data_forbidden_items(self, data: dict, forbidden_items: List[str] = None):
+        if forbidden_items is None:
+            forbidden_items = self.forbidden_data_items
+        for forbidden_item in forbidden_items:
+            if forbidden_item in data:
+                raise ValidatorException('Data item "' + forbidden_item + '" is not allowed.')
+
+    def _check_data_mandatory_items(self, data: dict, mandatory_items: List[str] = None):
+        if mandatory_items is None:
+            mandatory_items = self.mandatory_data_items
+        for mandatory_item in mandatory_items:
+            if mandatory_item not in data:
+                raise ValidatorException('Mandatory data item "' + mandatory_item + '" is missing.')
 
     def _check_selection_boundaries(self, limit: int = None, offset: int = None):
         """

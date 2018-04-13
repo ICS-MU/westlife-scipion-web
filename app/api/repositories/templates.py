@@ -10,8 +10,8 @@ class TemplatesRepository:
     def get_by_id(self, template_id: int) -> TemplateEntity:
         template = TemplateEntity.query.get(template_id)
         if template is None:
-            raise TemplateNotFoundException
-        return TemplateEntity.query.get(template_id)
+            raise TemplateNotFoundException("Template not found")
+        return template
 
 
 class TemplateException(Exception):
