@@ -1,7 +1,9 @@
+import os
 from flask import make_response
 from typing import List
 from api.entities.deployment import DeploymentEntity, DeploymentEntityFactory
-from api.utils.common_validators import BaseEntityValidator
+from api.utils.common_validators import BaseEntityValidator, ValidatorException
+import api.constants as const
 from api.database import db
 
 class DeploymentsRepository:
@@ -11,58 +13,56 @@ class DeploymentsRepository:
         self.factory = factory
 
     def get_by_id(self, deployment_id: int) -> DeploymentEntity:
-        pass
-        #if not os.path.isfile(const.DEPLOYMENTS_DB_FILE):
-        #    raise DeploymentNotFoundException
-        #with open(const.DEPLOYMENTS_DB_FILE, "r") as f_obj:
-        #    json_data = json.load(f_obj)
-        #deployment = [deployment for deployment in json_data if deployment['id'] == deployment_id]
-        #if len(deployment) == 0:
-        #    raise DeploymentNotFoundException
-        #return self.factory.create_from_data(deployment[0])
+        deployment = DeploymentEntity.query.get(deployment_id)
+        if deployment is None:
+            raise DeploymentNotFoundException("Deployment not found")
+        return deployment
 
     def get_by_user_id(self, user_id: str, running: bool, limit: int, offset: int) -> List[DeploymentEntity]:
-        return DeploymentEntity.query.order_by(DeploymentEntity.modified.desc()).limit(limit) \
-            .offset(offset).all()
-        #deployments = []
-        #if os.path.isfile(const.DEPLOYMENTS_DB_FILE):
-        #    with open(const.DEPLOYMENTS_DB_FILE, "r") as f_obj:
-        #        json_data = json.load(f_obj)
-
-        #    actual_offset = 0
-        #    for deployment in reversed(json_data):
-        #        if (deployment['status'] not in const.STATUSES_RUNNING and running) or \
-        #        (deployment['status'] in const.STATUSES_RUNNING and not running):
-        #            continue
-
-        #        if deployment['user_id'] == user_id:
-        #            actual_offset += 1
-        #            if actual_offset <= offset:
-        #                continue
-        #            deployments.append(self.factory.create_from_data(deployment))
-        #            if len(deployments) == limit:
-        #                break
-        #return deployments
+        if running is True:
+            query_statuses = const.STATUSES_RUNNING
+        else:
+            query_statuses = const.STATUSES_PAST
+        return DeploymentEntity.query.filter_by(user_id=user_id) \
+            .filter(DeploymentEntity.status.in_(query_statuses)) \
+            .order_by(DeploymentEntity.modified.desc()).limit(limit).offset(offset).all()
 
     def get_log_by_deployment_id(self, deployment_id: int) -> str:
-        pass
-        #path_to_log = const.DEPLOYMENTS_DIR + str(deployment_id) + "/log.txt"
-        #if os.path.isfile(path_to_log):
-        #    log = ""
-        #    with open(path_to_log, "r") as f_log:
-        #        log = f_log.read()
-        #    return make_response(log, 200)
-        #else:
-        #    raise DeploymentLogNotFoundException
+        path_to_log = const.DEPLOYMENTS_DIR + str(deployment_id) + "/log.txt"
+        if os.path.isfile(path_to_log):
+            log = ""
+            with open(path_to_log, "r") as f_log:
+                log = f_log.read()
+            return make_response(log, 200)
+        else:
+            raise DeploymentLogNotFoundException
 
-        #with open(path_to_log, "r") as f_log:
-        #    log = f_log.read()
+        with open(path_to_log, "r") as f_log:
+            log = f_log.read()
 
-    def store(deployment: DeploymentEntity) -> DeploymentEntity:
-        new_deployment = deployment
-        db.session.dd(new_deployment)
+    def store(self, deployment_new: DeploymentEntity) -> DeploymentEntity:
+        deployment = deployment_new
+        db.session.add(deployment)
         db.session.commit()
-        return new_deployment
+        return deployment
+
+    def update(self, deployment_to_update: DeploymentEntity, data: dict) -> DeploymentEntity:
+        deployment = deployment_to_update
+        deployment.name = data['name']
+        deployment.days_duration = data['days_duration']
+        db.session.commit()
+        return deployment
+
+    def undeploy(self, deployment_to_undeploy: DeploymentEntity) -> DeploymentEntity:
+        deployment = deployment_to_undeploy
+        deployment.status = const.STATUS_TO_UNDEPLOY
+        db.session.commit()
+        return deployment
+
+    def delete(self, deployment_to_delete: DeploymentEntity):
+        deployment = deployment_to_delete
+        db.session.delete(deployment)
+        db.session.commit()
 
 class DeploymentsValidator(BaseEntityValidator):
     """Deployments validator"""
@@ -74,7 +74,15 @@ class DeploymentsValidator(BaseEntityValidator):
     def validate(self, deployment: DeploymentEntity):
         self._validate_string_size(deployment.get_name(), "Deployment's name", 1, self.NAME_MAX_SIZE)
         self._validate_string_size(deployment.get_data_url(), "Deployment's data url", 1, self.DATA_URL_MAX_SIZE)
+        self._validate_data_type(deployment.get_template_id(), int, "Deployment's template id")
+        self._validate_data_type(deployment.get_days_duration(), int, "Deployment's duration")
         self._validate_integer_range(deployment.get_days_duration(), "Deployment's duration", 1, self.DAYS_DURATION_MAX_SIZE)
+
+    def validateUpdate(self, prev_deployment: DeploymentEntity, updated_deployment: DeploymentEntity):
+        if prev_deployment.get_data_url() != updated_deployment.get_data_url():
+            raise ValidatorException("Deployment's data url cannot be changed")
+        if prev_deployment.get_template_id() != updated_deployment.get_template_id():
+            raise ValidatorException("Deployment's template cannot be changed")
 
 class DeploymentException(Exception):
     """Deployment exception"""
@@ -91,4 +99,9 @@ class DeploymentNotFoundException(DeploymentException):
 class DeploymentLogNotFoundException(DeploymentException):
     """Deployment log is not found exception"""
     pass
+
+class DeploymentNotUndeployedException(DeploymentException):
+    """Deployment is not undeployed exception"""
+    pass
+
 

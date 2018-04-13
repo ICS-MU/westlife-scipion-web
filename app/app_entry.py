@@ -8,7 +8,7 @@ from datetime import timedelta
 from flask_cors import CORS
 import api.constants as const
 from api.users import IdentityResource
-from api.deployments import Deployments, Deployment, DeploymentLog
+from api.deployments import Deployments, Deployment, DeploymentLog, DeploymentUndeploy
 from api.templates import Templates, Template
 from api.database import db
 
@@ -91,6 +91,7 @@ def get_app():
     api.add_resource(Deployments, "/deployments")
     api.add_resource(Deployment, "/deployments/<int:deployment_id>")
     api.add_resource(DeploymentLog, "/deployments/<int:deployment_id>/log")
+    api.add_resource(DeploymentUndeploy, "/deployments/<int:deployment_id>/undeploy")
 
     # templates
     api.add_resource(Templates, "/templates")

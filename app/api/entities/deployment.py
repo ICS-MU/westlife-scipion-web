@@ -1,7 +1,7 @@
 import os
-import datetime
+from datetime import datetime
 import api.constants as const
-from api.entities.base import BaseEntity, BaseEntityFactory, BaseEntityFactoryException
+from api.entities.base import BaseEntity, BaseEntityFactory, BaseEntityFactoryException, InvalidDataItemsException
 from api.utils.dictionary import Dictionary
 from api.database import db
 from json.decoder import JSONDecodeError
@@ -13,7 +13,7 @@ class DeploymentEntity(BaseEntity):
     user_id = db.Column(db.String(255), nullable=False)
     name = db.Column(db.String(255), nullable=False)
     status = db.Column(db.String(30), nullable=False)
-    modified = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    modified = db.Column(db.DateTime, default=datetime.utcnow)
     days_duration = db.Column(db.Integer, nullable=False)
     data_url = db.Column(db.String(1000), nullable=False)
     olinip = db.Column(db.String(50), nullable=True)
@@ -49,11 +49,11 @@ class DeploymentEntity(BaseEntity):
     def get_status(self) -> str:
         return self.status
 
-    def set_modified(self, modified_datetime: str) -> "DeploymentEntity":
+    def set_modified(self, modified_datetime: datetime) -> "DeploymentEntity":
         self.modified = modified_datetime
         return self
 
-    def get_modified(self) -> str:
+    def get_modified(self) -> datetime:
         return self.modified
 
     def set_days_duration(self, deployment_days_duration: int) -> "DeploymentEntity":
@@ -103,7 +103,7 @@ class DeploymentEntity(BaseEntity):
             "user_id": self.get_user_id(),
             "name": self.get_name(),
             "status": self.get_status(),
-            "modified": self.get_modified(),
+            "modified": self.get_modified().isoformat(),
             "days_duration": self.get_days_duration(),
             "data_url": self.get_data_url(),
             "olinip": self.get_olinip(),
@@ -127,12 +127,14 @@ class DeploymentEntityFactory(BaseEntityFactory):
                 user_id=data['user_id'], 
                 name=data['name'],
                 status=const.STATUS_TO_DEPLOY,
-                modified=datetime.datetime.utcnow(),
+                modified=datetime.utcnow(),
                 days_duration=data['days_duration'],
                 data_url=data['data_url'],
                 template_id=data['template_id']
             )
             return deployment
+        except InvalidDataItemsException as e:
+            raise DeploymentEntityFactoryException(str(e))
         except JSONDecodeError:
             raise DeploymentEntityFactoryException("Invalid JSON in request")
 
