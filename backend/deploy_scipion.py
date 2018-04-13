@@ -7,9 +7,10 @@ import shutil
 import sys
 import logging.handlers
 import random, string
-from b_constants import *  # pylint: disable=W0614,W0401
+import b_constants as const  # pylint: disable=W0614,W0401
+import sqlite3
 
-deploy_attempts = 3
+
 
 def get_random_passwd():
     """Generate and return random string."""
@@ -59,6 +60,7 @@ def set_template_size(id_to_set_size, size_to_be_set):
 
 def deploy_scipion(id_to_deploy):
     """Deploy Scipion"""
+#    TODO with  get_deployment_info
     THIS_SCI_DIR = DEPLOYMENTS_DIR + id_to_deploy
     with open(DATABASE_FILE, 'r') as f_obj:
         deployments = json.load(f_obj)
@@ -125,45 +127,78 @@ def is_scipion_deployed(id_to_deploy):
     """Is scipion deployed?"""
     return True
 
+def get_first_id_to_deploy ()
+    """ Returns id of first deployment to be deployed. Returns 0 if nothing to deploy """
+    conn = sqlite3.connect(const.DATABASE)
+    with conn:
+        c = conn.cursor()
+        c.execute("SELECT id FROM deployments WHERE status=?", (const.STATUS_TO_DEPLOY,))
+        d_id = c.fetchone()
+    if d_id <> None:
+        return d_id[0]
+    else:
+        return None
 
-# Set-up logging and start
-logger = logging.getLogger('Sci_Deploy')
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+def set_status (new_status, id_to_change_status):
+    """ Change status in database for deployment id"""
+    conn = sqlite3.connect(const.DATABASE)
+    with conn:
+        c = conn.cursor()
+        c.execute("UPDATE deployments set status= ? WHERE id = ?", (new_status, id_to_change_status,))
 
-f = logging.handlers.RotatingFileHandler(DEPLOY_LOG_FILE, maxBytes=1000000, backupCount=3)
-f.setLevel((logging.DEBUG))
-f.setFormatter(formatter)
-logger.addHandler(f)
+def get_deployment_info(id_to_get_info):
+    """ """
+    conn = sqlite3.connect(const.DATABASE)
+    with conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute("SELECT * FROM deployments WHERE id = ?", (id_to_get_info,))
+        data = c.fetchone()
+    return data
 
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-ch.setFormatter(formatter)
-logger.addHandler(ch)
 
-logger.debug('Starting deploy.')
+def remove_files_after_failed_deployment(id_to_remove):
+    """ """
 
-if os.listdir(TO_DEPLOY_DIR):
-    filename = os.listdir(TO_DEPLOY_DIR)[0]
-    deployment_id = os.path.splitext(filename)[0]
+def initialize_logging():
+    # Set-up logging and start
+    logger = logging.getLogger('Sci_Deploy')
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    shutil.move(TO_DEPLOY_DIR + filename, DEPLOYING_DIR + filename)
-    logger.debug("Deploying %s", filename)
+    f = logging.handlers.RotatingFileHandler(const.DEPLOY_LOG_FILE, maxBytes=1000000, backupCount=3)
+    f.setLevel((logging.DEBUG))
+    f.setFormatter(formatter)
+    logger.addHandler(f)
 
-    while deploy_attempts > 0:
-        logger.debug("Remaining deploy attempts: %s", str(deploy_attempts))
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+
+def main():
+    initialize_logging()
+    logger.debug('Starting deploy.')
+
+    deployment_id = get_first_id_to_deploy()
+    if deployment_id <> None:
+        logger.debug("Deploying %s", deployment_id)
+        set_status( const.STATUS_DEPLOYING, deployment_id)
         deploy_scipion(deployment_id)
-        deploy_attempts -= 1
         if is_scipion_deployed(deployment_id):
+            update_database_after_deployment(deployment_id)
             logger.debug("Scipion %s succesfully deployed.", deployment_id)
-            clean_up_files(deployment_id)
-            break
-        elif deploy_attempts == 0:
-            logger.error("All deploy attempts have failed.")
         else:
-            logger.debug("Scipion " + deployment_id + " deployment failed. Remaining " + str(deploy_attempts) + " attempts.")
+            logger.debug("Deployment %s failed", deployment_id)
+            remove_files_after_failed_deployment(deployment_id)
+            set_status(const.STATUS_TO_DEPLOY, deployment_id)
 
-# TODO: if failed remove directory
+    else:
+        logger.debug('Nothing to deploy.')
 
-else:
-    logger.debug('Nothing to deploy.')
+
+if __name__ == "__main__":
+    main()
+
+

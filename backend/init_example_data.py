@@ -2,9 +2,11 @@
 """ """
 
 import json
-from bconstants import *  # pylint: disable=W0614,W0401
+import sqlite3
+import b_constants as const  # pylint: disable=W0614,W0401
 
-deployments = [
+
+deployments_list = [
     {
         "id": 1,
         "user_id": "some_shibboleth_id_of_the_user",
@@ -12,21 +14,38 @@ deployments = [
         "status": "deploying",
         "modified": "2018-04-03T13:00:00",
         "data_url": "http://www.example.com",
-        "size": "small",
+        "template_id": 1,
         "days_duration": 5
     },
     {
         "id": 2,
         "user_id": "some_shibboleth_id_of_the_user",
         "name": "Project Y",
-        "status": "deploying",
+        "status": "to_deploy",
         "modified": "2018-04-03T13:00:00",
         "data_url": "http://www.example.com",
-        "size": "medium",
+        "template_id": 1,
         "days_duration": 5
     }
 
 ]
 
-with open(DATABASE_FILENAME, 'w') as f_obj:
-    json.dump(deployments, f_obj)
+
+conn = sqlite3.connect(const.DATABASE)
+c = conn.cursor()
+
+c.execute(''' DELETE FROM deployments''')
+
+
+for deployment in deployments_list:
+    c.execute('''INSERT INTO deployments (id,user_id,name,status,data_url,template_id)
+                  VALUES (?,?,?,?,?,?)''', (deployment['id'], deployment['user_id'], deployment['name'],
+                                          deployment['status'], deployment['data_url'], deployment['template_id']))
+#    print (template['name'])
+
+conn.commit()
+
+c.execute('SELECT * FROM templates')
+print c.fetchall()
+
+conn.close()

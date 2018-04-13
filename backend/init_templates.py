@@ -1,33 +1,48 @@
 #!/usr/bin/env python3
 """ """
 
-import json
-from b_constants import *  # pylint: disable=W0614,W0401
+import sqlite3
+import b_constants as const  # pylint: disable=W0614,W0401
 
-templates = [
+
+templates_list = [
     {
+        "cores": 2,
         "id": 1,
+        "memory": 1,
         "name": "small",
-        "memory": 1,
-        "cores": 2,
         "olin_resource_tpl": "medium"
     },
     {
+        "cores": 2,
         "id": 2,
-        "name": "medium",
         "memory": 1,
-        "cores": 2,
+        "name": "medium",
         "olin_resource_tpl": "medium"
     },
     {
-        "id":3,
-        "name": "large",
-        "memory": 1,
         "cores": 2,
+        "id": 3,
+        "memory": 1,
+        "name": "large",
         "olin_resource_tpl": "medium"
     }
 ]
 
+conn = sqlite3.connect(const.DATABASE)
+c = conn.cursor()
 
-with open(TEMPLATES_FILE, 'w') as f_obj:
-    json.dump(templates, f_obj)
+c.execute(''' DELETE FROM templates''')
+
+
+for template in templates_list:
+    c.execute('''INSERT INTO templates(name,memory,cores,olin_resource_tpl)
+                  VALUES (?,?,?,?)''', (template['name'],template['memory'],template['cores'],template['olin_resource_tpl']))
+#    print (template['name'])
+
+conn.commit()
+
+c.execute('SELECT * FROM templates')
+print c.fetchall()
+
+conn.close()
