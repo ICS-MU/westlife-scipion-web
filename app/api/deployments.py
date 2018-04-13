@@ -12,7 +12,6 @@ import api.constants as const
 class DeploymentsResource(ApiResource):
     """Deployment base resource"""
 
-    DEFAULT_RUNNING = False
     forbidden_data_items = ["id", "user_id", "status", "modified", "olinip", "vnc_password"]
 
     def __init__(self):
@@ -25,22 +24,13 @@ class DeploymentsResource(ApiResource):
     def _deployment_not_found_result() -> tuple:
         return { "message": "Deployment not found" }, 404
 
-    @staticmethod
-    def _check_deployment_running(deployment: DeploymentEntity):
-        if deployment.is_past():
-            raise DeploymentNotRunningException("Deployment is not running")
-
-    def _check_deployment_running_by_id(self, deployment_id: int):
-        deployment = self.repository.get_by_id(deployment_id)
-        self._check_deployment_running(deployment)
-
     def _check_template_existence(self, template_id: int):
         self.templates_repository.get_by_id(template_id)
 
     def _get_running_param(self) -> bool:
         running = request.args.get("running")
         if running is None:
-            running = self.DEFAULT_RUNNING
+            return None
         return True if running == "true" else False
 
 
@@ -92,13 +82,10 @@ class Deployment(DeploymentsResource):
     @current_user
     def get(self, current_user, deployment_id: int):
         try:
-            self._check_deployment_running_by_id(deployment_id)
             deployment = self.repository.get_by_id(deployment_id)
             if deployment.get_user_id() != current_user['id']:
                 return self._resource_not_allowed_result()
             return { "deployment": deployment.to_dict() }
-        except DeploymentNotRunningException as e:
-            return { "message": str(e) }, 404
         except DeploymentNotFoundException:
             return self._deployment_not_found_result()
 

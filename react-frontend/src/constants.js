@@ -11,7 +11,17 @@ export const DEPLOYMENT = {
     PAST: 'DEPLOYMENTS_LIST_PAST'
   },
   RETRIEVE: 'DEPLOYMENT_RETRIEVE',
-  RETRIEVE_LOG: 'DEPLOYMENT_RETRIEVE_LOG'
+  RETRIEVE_LOG: 'DEPLOYMENT_RETRIEVE_LOG',
+  STATUS: {
+    TO_DEPLOY: 'to_deploy',
+    DEPLOYING: 'deploying',
+    DEPLOYED: 'deployed',
+    TO_UNDEPLOY: 'to_undeploy',
+    UNDEPLOYING: 'undeploying',
+    UNDEPLOYED: 'undeployed',
+    RUNNING: ['to_deploy', 'deploying', 'deployed'],
+    PAST: ['to_undeploy', 'undeploying', 'undeployed']
+  }
 }
 
 export const NOTIFICATION = {

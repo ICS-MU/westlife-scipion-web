@@ -45,3 +45,6 @@
 
 .icon-button:hover .color-primary {
   fill: #006ba3; }
+
+.tooltip-button-wrapper {
+  display: inline-block; }

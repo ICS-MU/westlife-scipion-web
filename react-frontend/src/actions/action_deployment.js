@@ -42,7 +42,7 @@ export const listRunningDeployments = () => async (dispatch) => {
   })
 }
 
-export const retrieveRunningDeployment = (deployment_id) => async (dispatch) => {
+export const retrieveDeployment = (deployment_id) => async (dispatch) => {
   return dispatch({
     type: DEPLOYMENT.RETRIEVE,
     payload: {

@@ -46,6 +46,9 @@
 .icon-button:hover .color-primary {
   fill: #006ba3; }
 
+.tooltip-button-wrapper {
+  display: inline-block; }
+
 .form {
   padding: 20px; }
   .form h3 {
@@ -95,6 +98,9 @@
   .list table tbody tr.clickable:hover .name, .show table tbody tr.clickable:hover .name {
     color: #3399d5; }
 
+.list table tbody tr.not-allowed, .show table tbody tr.not-allowed {
+  cursor: not-allowed; }
+
 .drawer.width500 {
   width: 500px; }
 
@@ -114,21 +120,30 @@
   white-space: pre-wrap;
   margin: 40px; }
 
-.finished, .deleted, .running {
+.status {
   padding: 3px 10px;
-  border-radius: 14px; }
+  border-radius: 14px;
+  color: #ffffff;
+  font-weight: medium;
+  font-size: 14px; }
 
-.finished {
-  background-color: #00c853;
-  color: #ffffff; }
+.to_deploy {
+  background-color: #FFC300; }
 
-.deleted {
-  background-color: #393b3e;
-  color: #ffffff; }
+.deploying {
+  background-color: #3399d5; }
 
-.running {
-  background-color: #00b2a9;
-  color: #ffffff; }
+.deployed {
+  background-color: #00b2a9; }
+
+.to_undeploy {
+  background-color: #393b3e; }
+
+.undeploying {
+  background-color: #996633; }
+
+.undeployed {
+  background-color: #e53935; }
 
 html {
   height: 100%; }

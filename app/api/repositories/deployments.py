@@ -5,6 +5,7 @@ from api.entities.deployment import DeploymentEntity, DeploymentEntityFactory
 from api.utils.common_validators import BaseEntityValidator, ValidatorException
 import api.constants as const
 from api.database import db
+from datetime import datetime
 
 class DeploymentsRepository:
     """Deployments repository"""
@@ -20,12 +21,17 @@ class DeploymentsRepository:
 
     def get_by_user_id(self, user_id: str, running: bool, limit: int, offset: int) -> List[DeploymentEntity]:
         if running is True:
-            query_statuses = const.STATUSES_RUNNING
+            return DeploymentEntity.query.filter_by(user_id=user_id) \
+                .filter(DeploymentEntity.status.in_(const.STATUSES_RUNNING)) \
+                .order_by(DeploymentEntity.id.desc()).limit(limit).offset(offset).all()
+        elif running is False:
+            return DeploymentEntity.query.filter_by(user_id=user_id) \
+                .filter(DeploymentEntity.status.in_(const.STATUSES_PAST)) \
+                .order_by(DeploymentEntity.modified.desc()).limit(limit).offset(offset).all()
         else:
-            query_statuses = const.STATUSES_PAST
-        return DeploymentEntity.query.filter_by(user_id=user_id) \
-            .filter(DeploymentEntity.status.in_(query_statuses)) \
-            .order_by(DeploymentEntity.modified.desc()).limit(limit).offset(offset).all()
+            return DeploymentEntity.query.filter_by(user_id=user_id) \
+                .order_by(DeploymentEntity.modified.desc()).limit(limit).offset(offset).all()
+        
 
     def get_log_by_deployment_id(self, deployment_id: int) -> str:
         path_to_log = const.DEPLOYMENTS_DIR + str(deployment_id) + "/log.txt"
@@ -56,6 +62,7 @@ class DeploymentsRepository:
     def undeploy(self, deployment_to_undeploy: DeploymentEntity) -> DeploymentEntity:
         deployment = deployment_to_undeploy
         deployment.status = const.STATUS_TO_UNDEPLOY
+        deployment.modified = datetime.utcnow()
         db.session.commit()
         return deployment
 

@@ -38,3 +38,6 @@
   cursor: pointer; }
   .list table tbody tr.clickable:hover .name, .show table tbody tr.clickable:hover .name {
     color: #3399d5; }
+
+.list table tbody tr.not-allowed, .show table tbody tr.not-allowed {
+  cursor: not-allowed; }

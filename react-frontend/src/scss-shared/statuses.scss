@@ -1,0 +1,33 @@
+@import './variables.scss';
+
+.status {
+  padding: 3px 10px;
+  border-radius: 14px;
+  color: $color_white;
+  font-weight: medium;
+  font-size: 14px;
+}
+
+.to_deploy {
+    background-color: $color_amber;
+}
+
+.deploying {
+    background-color: $color_primary;
+}
+
+.deployed {
+    background-color: $color_secondary;
+}
+
+.to_undeploy {
+    background-color: $color_grey;
+}
+
+.undeploying {
+    background-color: $color_brown;
+}
+
+.undeployed {
+    background-color: $color_red;
+}

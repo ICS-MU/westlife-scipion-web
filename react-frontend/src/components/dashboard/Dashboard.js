@@ -11,7 +11,7 @@ import Button from 'material-ui/Button'
 import IconButton from 'material-ui/IconButton'
 import Tooltip from 'material-ui/Tooltip'
 import Grid from 'material-ui/Grid'
-import DeleteIcon from 'material-ui-icons/DeleteForever'
+import UndeployIcon from 'material-ui-icons/Close'
 import ReplayIcon from 'material-ui-icons/Replay'
 import AddIcon from 'material-ui-icons/Add'
 import DescriptionIcon from 'material-ui-icons/Description'
@@ -21,7 +21,7 @@ import { getRoutePath } from '../../routes'
 import ConfirmDialog from '../ui/components/ConfirmDialog/ConfirmDialog'
 import DeploymentFormDrawer from '../deployment/components/DeploymentFormDrawer'
 import DeploymentLogDrawer from '../deployment/components/DeploymentLogDrawer'
-import { MOMENT_DATE_TIME_FORMAT, DRAWER } from '../../constants'
+import { MOMENT_DATE_TIME_FORMAT, DRAWER, DEPLOYMENT } from '../../constants'
 
 import './Dashboard.css'
 
@@ -109,8 +109,10 @@ class Dashboard extends Component {
     })
   }
 
-  showDeployment = (id) => () => {
-    this.props.history.push(getRoutePath('deployment.show', { id }))
+  showDeployment = (deployment) => () => {
+    if(deployment.status === DEPLOYMENT.STATUS.DEPLOYED) {
+      this.props.history.push(getRoutePath('deployment.show', { id: deployment.id }))
+    }
   }
 
   componentDidMount() {
@@ -129,7 +131,7 @@ class Dashboard extends Component {
             <Paper>
               <AppBar position="static" className="list-appbar">
                 <Typography variant="title" className="list-title">
-                  Your running VMs
+                  Your running deployments
                 </Typography>
                 <div className="button-area">
                   <Button className="btn color-white" variant="raised" onClick={ this.deploymentFormDrawerOpen() }>
@@ -142,28 +144,38 @@ class Dashboard extends Component {
                   <TableHead>
                     <TableRow>
                       <TableCell>Name</TableCell>
-                      <TableCell>Duration time</TableCell>
-                      <TableCell className="align-right">Created</TableCell>
+                      <TableCell>Duration</TableCell>
+                      <TableCell>Status</TableCell>
+                      <TableCell className="align-right">Modified</TableCell>
                       <TableCell className="align-right">Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {
                       _.map(deployments.running.data, (deployment) => (
-                        <TableRow key={ deployment.id } className="clickable" onClick={ this.showDeployment(deployment.id) }>
+                        <TableRow 
+                          key={ deployment.id } 
+                          className={ `${deployment.status === DEPLOYMENT.STATUS.DEPLOYED ? 'clickable' : 'not-allowed'}` } 
+                          onClick={ this.showDeployment(deployment) }
+                        >
                           <TableCell className="name">{ deployment.name }</TableCell>
-                          <TableCell>{ deployment.duration_time } hours</TableCell>
+                          <TableCell>{ deployment.days_duration } days</TableCell>
+                          <TableCell><span className={ `${deployment.status} status` }>{ _.replace(deployment.status, '_', ' ') }</span></TableCell>
                           <TableCell className="align-right datetime">{ moment.utc(deployment.modified).local().format(MOMENT_DATE_TIME_FORMAT) }</TableCell>
                           <TableCell className="align-right">
-                            <Tooltip title="View log" placement="bottom">
-                              <IconButton className="icon-button" onClick={ this.deploymentLogDrawerOpen(deployment) }>
-                                <DescriptionIcon className="color-secondary" />
-                              </IconButton>
+                            <Tooltip title="View log" placement="bottom" disableTriggerFocus>
+                              <span className="tooltip-button-wrapper">
+                                <IconButton className="icon-button" onClick={ this.deploymentLogDrawerOpen(deployment) }>
+                                  <DescriptionIcon className="color-secondary" />
+                                </IconButton>
+                              </span>
                             </Tooltip>
-                            <Tooltip title="Delete" placement="bottom">
-                              <IconButton className="icon-button" onClick={ this.openDeleteDialog(deployment) }>
-                                <DeleteIcon className="color-red" />
-                              </IconButton>
+                            <Tooltip title="Undeploy" placement="bottom" disableTriggerFocus>
+                              <span className="tooltip-button-wrapper">
+                                <IconButton className="icon-button" onClick={ this.openDeleteDialog(deployment) }>
+                                  <UndeployIcon className="color-red" />
+                                </IconButton>
+                              </span>
                             </Tooltip>
                           </TableCell>
                         </TableRow>
@@ -186,7 +198,7 @@ class Dashboard extends Component {
             <Paper className="second-box">
               <AppBar position="static" className="list-appbar">
                 <Typography variant="title" className="list-title">
-                  Past projects
+                  Deployments history
                 </Typography>
               </AppBar>
               { !_.isEmpty(deployments.past.data) && 
@@ -195,7 +207,7 @@ class Dashboard extends Component {
                     <TableRow>
                       <TableCell>Name</TableCell>
                       <TableCell>Duration time</TableCell>
-                      <TableCell>State</TableCell>
+                      <TableCell>Status</TableCell>
                       <TableCell className="align-right">Finished</TableCell>
                       <TableCell className="align-right">Actions</TableCell>
                     </TableRow>
@@ -205,19 +217,23 @@ class Dashboard extends Component {
                       _.map(deployments.past.data, (deployment) => (
                         <TableRow key={ deployment.id }>
                           <TableCell className="name">{ deployment.name }</TableCell>
-                          <TableCell>{ deployment.duration_time } hours</TableCell>
-                          <TableCell><span className={ deployment.state }>{ deployment.state }</span></TableCell>
-                          <TableCell className="align-right datetime">{ moment.utc(deployment.finished).local().format(MOMENT_DATE_TIME_FORMAT) }</TableCell>
+                          <TableCell>{ deployment.days_duration } days</TableCell>
+                          <TableCell><span className={ `${deployment.status} status` }>{ _.replace(deployment.status, '_', ' ') }</span></TableCell>
+                          <TableCell className="align-right datetime">{ moment.utc(deployment.modified).local().format(MOMENT_DATE_TIME_FORMAT) }</TableCell>
                           <TableCell className="align-right">
-                            <Tooltip title="View log" placement="bottom">
-                              <IconButton className="icon-button" onClick={ this.deploymentLogDrawerOpen(deployment) }>
-                                <DescriptionIcon className="color-secondary" />
-                              </IconButton>
+                            <Tooltip title="View log" placement="bottom" disableTriggerFocus>
+                              <span className="tooltip-button-wrapper">
+                                <IconButton className="icon-button" onClick={ this.deploymentLogDrawerOpen(deployment) }>
+                                  <DescriptionIcon className="color-secondary" />
+                                </IconButton>
+                              </span>
                             </Tooltip>
-                            <Tooltip title="Re-deploy" placement="bottom">
-                              <IconButton className="icon-button" onClick={ this.deploymentFormDrawerOpen(deployment) }>
-                                <ReplayIcon className="color-primary" />
-                              </IconButton>
+                            <Tooltip title="Re-deploy" placement="bottom" disableTriggerFocus>
+                              <span className="tooltip-button-wrapper">
+                                <IconButton className="icon-button" onClick={ this.deploymentFormDrawerOpen(deployment) }>
+                                  <ReplayIcon className="color-primary" />
+                                </IconButton>
+                              </span>
                             </Tooltip>
                           </TableCell>
                         </TableRow>
@@ -249,7 +265,7 @@ class Dashboard extends Component {
             />
             <ConfirmDialog 
               open={ deleteDialog.open }
-              action="delete"
+              action="undeploy"
               type="DELETE"
               what="deployment"
               item={ deleteDialog.item ? deleteDialog.item.name : '' }

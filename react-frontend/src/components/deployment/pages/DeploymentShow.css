@@ -15,5 +15,16 @@
 .show .bottom-padding {
   padding-bottom: 20px; }
 
-.loading-message {
-  text-align: center; }
+.show .circular-progress {
+  margin: 0 auto;
+  display: block; }
+
+.show .back-button-wrapper {
+  margin-top: 15px; }
+
+.show .status-code {
+  font-size: 108px;
+  margin-bottom: 15px; }
+
+.show .deployment-not-ready {
+  margin: 30px 0; }

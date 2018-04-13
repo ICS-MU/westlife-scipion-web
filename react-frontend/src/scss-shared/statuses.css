@@ -1,0 +1,24 @@
+.status {
+  padding: 3px 10px;
+  border-radius: 14px;
+  color: #ffffff;
+  font-weight: medium;
+  font-size: 14px; }
+
+.to_deploy {
+  background-color: #FFC300; }
+
+.deploying {
+  background-color: #3399d5; }
+
+.deployed {
+  background-color: #00b2a9; }
+
+.to_undeploy {
+  background-color: #393b3e; }
+
+.undeploying {
+  background-color: #996633; }
+
+.undeployed {
+  background-color: #e53935; }
