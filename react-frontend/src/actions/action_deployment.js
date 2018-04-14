@@ -42,14 +42,18 @@ export const listRunningDeployments = () => async (dispatch) => {
   })
 }
 
-export const retrieveDeployment = (deployment_id) => async (dispatch) => {
+export const retrieveDeployment = (deploymentId, running) => async (dispatch) => {
   return dispatch({
     type: DEPLOYMENT.RETRIEVE,
     payload: {
       promise: (async () => {
-        const response = await api().deployment.retrieve(deployment_id)
+        const response = await api().deployment.retrieve(deploymentId, running)
         return _.get(response, 'deployment', {}) 
       })()
     }
   })
+}
+
+export const retrieveLog = (deploymentId) => {
+  return api().deployment.retrieveLog(deploymentId)
 }

@@ -15,10 +15,6 @@
 .show .bottom-padding {
   padding-bottom: 20px; }
 
-.show .circular-progress {
-  margin: 0 auto;
-  display: block; }
-
 .show .back-button-wrapper {
   margin-top: 15px; }
 
@@ -28,3 +24,16 @@
 
 .show .deployment-not-ready {
   margin: 30px 0; }
+
+.show .info-icon {
+  position: relative;
+  top: 5px;
+  margin-top: -5px;
+  margin-left: 5px;
+  font-size: 20px;
+  color: #cccccc;
+  cursor: pointer; }
+
+.show .deployment-size {
+  color: #54585a;
+  font-size: 0.875rem; }

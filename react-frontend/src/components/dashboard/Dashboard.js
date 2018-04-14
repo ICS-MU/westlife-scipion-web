@@ -29,7 +29,7 @@ class Dashboard extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      deleteDialog: {
+      undeployDialog: {
         open: false,
         item: null
       },
@@ -45,27 +45,27 @@ class Dashboard extends Component {
     }
   }
 
-  openDeleteDialog = (deployment) => (evt) => {
+  openUndeployDialog = (deployment) => (evt) => {
     evt.stopPropagation()
     this.setState({
-      deleteDialog: {
+      undeployDialog: {
         open: true,
         item: deployment
       }
     })
   }
 
-  closeDeleteDialog = () => {
+  closeUndeployDialog = () => {
     this.setState({
-      deleteDialog: {
-        ...this.state.deleteDialog,
+      undeployDialog: {
+        ...this.state.undeployDialog,
         open: false
       }
     })
   }
 
-  deleteDeployment = () => {
-    this.closeDeleteDialog()
+  undeployDeployment = () => {
+    this.closeUndeployDialog()
   }
 
   deploymentFormDrawerClose = () => {
@@ -122,7 +122,7 @@ class Dashboard extends Component {
 
   render() {
     const { deployments } = this.props
-    const { deleteDialog, deploymentFormDrawer, deploymentLogDrawer } = this.state
+    const { undeployDialog, deploymentFormDrawer, deploymentLogDrawer } = this.state
 
     return (
       <Grid item xs={ 12 } className="list">
@@ -172,7 +172,7 @@ class Dashboard extends Component {
                             </Tooltip>
                             <Tooltip title="Undeploy" placement="bottom" disableTriggerFocus>
                               <span className="tooltip-button-wrapper">
-                                <IconButton className="icon-button" onClick={ this.openDeleteDialog(deployment) }>
+                                <IconButton className="icon-button" onClick={ this.openUndeployDialog(deployment) }>
                                   <UndeployIcon className="color-red" />
                                 </IconButton>
                               </span>
@@ -264,13 +264,13 @@ class Dashboard extends Component {
               deployment={ deploymentLogDrawer.item }
             />
             <ConfirmDialog 
-              open={ deleteDialog.open }
+              open={ undeployDialog.open }
               action="undeploy"
-              type="DELETE"
+              type="UNDEPLOY"
               what="deployment"
-              item={ deleteDialog.item ? deleteDialog.item.name : '' }
-              handleRequestClose={ this.deleteDeployment }
-              handleRequestConfirm={ this.closeDeleteDialog }
+              item={ undeployDialog.item ? undeployDialog.item.name : '' }
+              handleRequestClose={ this.undeployDeployment }
+              handleRequestConfirm={ this.closeUndeployDialog }
             />
           </div>
         }

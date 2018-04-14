@@ -35,6 +35,10 @@ export const NOTIFICATION = {
   }
 }
 
+export const TEMPLATE = {
+  LIST: 'LIST_TEMPLATES'
+}
+
 export const MOMENT_DATE_TIME_FORMAT = 'HH:mm D/M/YY'
 
 export const DRAWER = {

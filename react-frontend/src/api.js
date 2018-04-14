@@ -68,11 +68,16 @@ export function api() {
       list(offset = 0, limit = 20, running = true) {
         return requestFactory('get', '/deployments', { offset, limit, running })
       },
-      retrieve(deployment_id) {
-        return requestFactory('get', `/deployments/${deployment_id}`)
+      retrieve(deploymentId, running = false) {
+        return requestFactory('get', `/deployments/${deploymentId}`, { running })
       },
-      retrieveLog(deployment_id) {
-        return requestFactory('get', `/deployments/${deployment_id}/log`)
+      retrieveLog(deploymentId) {
+        return requestFactory('get', `/deployments/${deploymentId}/log`)
+      }
+    },
+    template: {
+      list() {
+        return requestFactory('get', '/templates')
       }
     },
     development: {

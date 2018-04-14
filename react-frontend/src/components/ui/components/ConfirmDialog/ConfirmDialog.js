@@ -44,6 +44,11 @@ class ConfirmDialog extends Component {
               Delete
             </Button>
           }
+          { type === 'UNDEPLOY' &&
+            <Button variant="raised" onClick={ handleRequestClose } className="btn color-red">
+              Undeploy
+            </Button>
+          }
         </DialogActions>
       </Dialog>
     )

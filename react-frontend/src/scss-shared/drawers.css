@@ -8,7 +8,9 @@
   border-bottom: 1px solid #393b3e;
   min-height: 120px;
   display: flex;
-  align-items: center; }
+  align-items: center;
+  margin-bottom: 20px;
+  background: #ffffff; }
   .drawer header .close {
     margin-left: 20px;
     margin-right: 40px; }
@@ -16,3 +18,10 @@
 .drawer .content {
   white-space: pre-wrap;
   margin: 40px; }
+
+.drawer pre.content {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #f1f4f6;
+  word-break: break-all;
+  overflow: scroll; }

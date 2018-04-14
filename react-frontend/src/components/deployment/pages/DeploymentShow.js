@@ -11,12 +11,14 @@ import Grid from 'material-ui/Grid'
 import { CircularProgress } from 'material-ui/Progress'
 import UndeployIcon from 'material-ui-icons/Close'
 import DescriptionIcon from 'material-ui-icons/Description'
+import Tooltip from 'material-ui/Tooltip'
+import InfoIcon from 'material-ui-icons/Info'
 
 import { getRoutePath } from '../../../routes'
 import { retrieveDeployment } from '../../../actions/action_deployment'
 import ConfirmDialog from '../../ui/components/ConfirmDialog/ConfirmDialog'
 import DeploymentLogDrawer from '../components/DeploymentLogDrawer'
-import { DEPLOYMENT } from '../../../constants'
+import { DEPLOYMENT, MOMENT_DATE_TIME_FORMAT } from '../../../constants'
 import './DeploymentShow.css'
 import novnc from '../../../images/novnc.png'
 
@@ -25,7 +27,7 @@ class DeploymentShow extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      deleteDialog: {
+      undeployDialog: {
         open: false
       },
       deploymentLogDrawer: {
@@ -35,24 +37,24 @@ class DeploymentShow extends Component {
     }
   }
 
-  openDeleteDialog = (deployment) => {
+  openUndeployDialog = (deployment) => {
     this.setState({
-      deleteDialog: {
+      undeployDialog: {
         open: true
       }
     })
   }
 
-  closeDeleteDialog = () => {
+  closeUndeployDialog = () => {
     this.setState({
-      deleteDialog: {
+      undeployDialog: {
         open: false
       }
     })
   }
 
-  deleteDeployment = () => {
-    this.closeDeleteDialog()
+  undeployDeployment = () => {
+    this.closeUndeployDialog()
   }
 
   deploymentLogDrawerClose = () => {
@@ -90,7 +92,7 @@ class DeploymentShow extends Component {
   }
 
   componentDidMount() {
-    this.props.retrieveDeployment(this.props.match.params.id)
+    this.props.retrieveDeployment(this.props.match.params.id, true)
       .catch((error) => {
         const status = _.get(error, 'response.status', 'Ups')
         const message = _.get(error, 'response.data.message', 'Something went wrong')
@@ -105,35 +107,28 @@ class DeploymentShow extends Component {
   }
 
   render() {
-    const { deployment, error } = this.props
-    const { deleteDialog, deploymentLogDrawer, apiError } = this.state
+    const { deployment, templates } = this.props
+    const { undeployDialog, deploymentLogDrawer, apiError } = this.state
 
-    if(!deployment && !error && _.isEmpty(apiError)) {
+    if(!deployment && _.isEmpty(apiError)) {
       return (
-        <div className="show">
+        <div className="show progress-box">
           <CircularProgress className="circular-progress" size={50} />
         </div>
       )
     }
 
-    if(error || !_.isEmpty(apiError)) {
+    if(!_.isEmpty(apiError)) {
       return (
         <div className="show">
-          { error && 
-            <Typography align="center" variant="subheading">
-              { error }
+          <div>
+            <Typography align="center" variant="headline" className="status-code">
+              { apiError.status }
             </Typography>
-          }
-          { !_.isEmpty(apiError) &&
-            <div>
-              <Typography align="center" variant="headline" className="status-code">
-                { apiError.status }
-              </Typography>
-              <Typography align="center" variant="subheading">
-                { apiError.message }
-              </Typography>
-            </div>
-          }
+            <Typography align="center" variant="subheading">
+              { apiError.message }
+            </Typography>
+          </div>
           {
             this.renderBackDashboardButton()
           }
@@ -141,6 +136,8 @@ class DeploymentShow extends Component {
       )
     }
 
+    const templateId = _.get(deployment, 'template_id', 0)
+    const template = _.get(templates, `${templateId}`, {})
     return (
       <Grid item xs={ 12 } className="show">
         <div>
@@ -153,17 +150,42 @@ class DeploymentShow extends Component {
                 <Button className="btn color-white" variant="raised" onClick={ this.deploymentLogDrawerOpen }>
                   <DescriptionIcon className="left-icon" /> Log
                 </Button>
-                <Button className="btn color-white" variant="raised" onClick={ this.openDeleteDialog }>
+                <Button className="btn color-white" variant="raised" onClick={ this.openUndeployDialog }>
                   <UndeployIcon className="left-icon" /> Undeploy
                 </Button>
               </div>
             </AppBar>
             <header className="basic-info">
-              <span>Deployment size: { deployment.size }</span>
-              <span className={ `${deployment.status} status` }>Status: { _.replace(deployment.status, '_', ' ') }</span>
-              <span>Estimated time: { 
-                moment().diff(moment(deployment.created).add(deployment.duration_time, 'hour'), 'hour')
-              } hours</span>
+              <div className="deployment-size">
+                <strong>Deployment size:</strong> { _.get(template, 'name', '') }
+                { !_.isEmpty(template) && 
+                  <Tooltip 
+                    placement="right"
+                    title={ 
+                      <span>
+                        Cores: {template.cores}<br />
+                        Memory: {template.memory} GB
+                      </span> 
+                    }
+                  >
+                    <InfoIcon className="info-icon" />
+                  </Tooltip>
+                }
+              </div>
+              <Typography>
+                <span className={ `${deployment.status} status` }>Status: { _.replace(deployment.status, '_', ' ') }</span>
+              </Typography>
+              <Typography variant="body1">
+                <strong>Undeploy time:</strong> { 
+                  moment.utc(deployment.modified)
+                    .add(deployment.days_duration, 'days')
+                    .local()
+                    .format(MOMENT_DATE_TIME_FORMAT)
+                  }
+              </Typography>
+              <Typography variant="body1">
+                <strong>Deployment url:</strong> { deployment.data_url ? deployment.data_url : 'none' }
+              </Typography>
             </header>
             { deployment.status === DEPLOYMENT.STATUS.DEPLOYED && 
               <img src={ novnc } className="image" alt="novnc dummy img" />
@@ -186,13 +208,13 @@ class DeploymentShow extends Component {
           deployment={ deployment }
         />
         <ConfirmDialog 
-          open={ deleteDialog.open }
-          action="delete"
-          type="DELETE"
+          open={ undeployDialog.open }
+          action="undeploy"
+          type="UNDEPLOY"
           what="deployment"
           item={ deployment.name }
-          handleRequestClose={ this.deleteDeployment }
-          handleRequestConfirm={ this.closeDeleteDialog }
+          handleRequestClose={ this.undeployDeployment }
+          handleRequestConfirm={ this.closeUndeployDialog }
         />
       </Grid>
     )
@@ -205,10 +227,10 @@ DeploymentShow.propTypes = {
   retrieveDeployment: PropTypes.func.isRequired
 }
 
-function mapStateToProps({ deployments }, ownProps) {
+function mapStateToProps({ deployments, templates }, ownProps) {
   return { 
     deployment: _.find(deployments.running.data, { id: _.toInteger(ownProps.match.params.id) }),
-    error: deployments.running.error 
+    templates
   }
 }
 

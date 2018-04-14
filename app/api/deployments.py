@@ -24,6 +24,15 @@ class DeploymentsResource(ApiResource):
     def _deployment_not_found_result() -> tuple:
         return { "message": "Deployment not found" }, 404
 
+    @staticmethod
+    def _check_deployment_running(deployment: DeploymentEntity):
+        if deployment.is_past():
+            raise DeploymentNotRunningException("It's not possible to show past deployment")
+
+    def _check_deployment_running_by_id(self, deployment_id: int):
+        deployment = self.repository.get_by_id(deployment_id)
+        self._check_deployment_running(deployment)
+
     def _check_template_existence(self, template_id: int):
         self.templates_repository.get_by_id(template_id)
 
@@ -82,10 +91,14 @@ class Deployment(DeploymentsResource):
     @current_user
     def get(self, current_user, deployment_id: int):
         try:
+            if self._get_running_param():
+                self._check_deployment_running_by_id(deployment_id)
             deployment = self.repository.get_by_id(deployment_id)
             if deployment.get_user_id() != current_user['id']:
                 return self._resource_not_allowed_result()
             return { "deployment": deployment.to_dict() }
+        except DeploymentNotRunningException as e:
+            return { "message": str(e) }, 405
         except DeploymentNotFoundException:
             return self._deployment_not_found_result()
 

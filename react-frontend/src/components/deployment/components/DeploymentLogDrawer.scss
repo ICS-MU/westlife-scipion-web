@@ -1,0 +1,10 @@
+.log-drawer {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+    .status-code {
+        font-size: 108px;
+        margin-bottom: 15px;
+    }
+}
