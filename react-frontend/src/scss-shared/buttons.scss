@@ -23,7 +23,8 @@
       color: $color_grey;
       
       &:hover {
-        background-color: $color_white-hover;
+        background-color: $color_grey;
+        color: $color_white;
       }
     }
 
@@ -57,6 +58,9 @@
   .color-primary {
     fill: $color_primary;
   }
+  .color-amber {
+    fill: $color_amber;
+  }
 
   &:hover {
     .color-secondary {
@@ -69,6 +73,16 @@
 
     .color-primary {
       fill: $color_primary-hover;
+    }
+
+    .color-amber {
+      fill: $color_amber-hover;
+    }
+  }
+
+  &:disabled {
+    .color-red, .color-secondary, .color-primary, .color-amber {
+      fill: $color_disabled;
     }
   }
 }

@@ -42,6 +42,19 @@ export const listRunningDeployments = () => async (dispatch) => {
   })
 }
 
+export const listPastDeployments = (offset, limit, filterTerm = '') => async (dispatch) => {
+  const running = false
+
+  return dispatch({
+    type: DEPLOYMENT.LIST.PAST,
+    payload: {
+      promise: (async () => {
+        return await api().deployment.list(offset, limit, running, filterTerm)
+      })()
+    }
+  })
+}
+
 export const retrieveDeployment = (deploymentId, running) => async (dispatch) => {
   return dispatch({
     type: DEPLOYMENT.RETRIEVE,
@@ -57,3 +70,52 @@ export const retrieveDeployment = (deploymentId, running) => async (dispatch) =>
 export const retrieveLog = (deploymentId) => {
   return api().deployment.retrieveLog(deploymentId)
 }
+
+export const createDeployment = (data) => async (dispatch) => {
+  return dispatch({
+    type: DEPLOYMENT.CREATE,
+    payload: {
+      promise: (async () => {
+        const response = await api().deployment.create(data)
+        return _.get(response, 'deployment', {})
+      })()
+    }
+  })
+}
+
+export const modifyDeployment = (deploymentId, data) => async (dispatch) => {
+  return dispatch({
+    type: DEPLOYMENT.MODIFY,
+    payload: {
+      promise: (async () => {
+        const response = await api().deployment.modify(deploymentId, data)
+        return _.get(response, 'deployment', {})
+      })()
+    }
+  })
+}
+
+export const undeployDeployment = (deploymentId) => async (dispatch) => {
+  return dispatch({
+    type: DEPLOYMENT.UNDEPLOY,
+    payload: {
+      promise: (async () => {
+        const response = await api().deployment.undeploy(deploymentId)
+        return _.get(response, 'deployment', {})
+      })()
+    }
+  })
+}
+
+export const deletePastDeployment = (deploymentId) => async (dispatch) => {
+  return dispatch({
+    type: DEPLOYMENT.DELETE,
+    payload: {
+      promise: (async () => {
+        await api().deployment.delete(deploymentId)
+        return { id: deploymentId }
+      })
+    }
+  })
+}
+

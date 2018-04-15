@@ -2,39 +2,82 @@
 @import '../../scss-shared/variables.scss';
 
 .button-area {
-  &.machine-size {
+  &.posrel {
+    position: relative;
+    
+    &:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+  }
+
+  .machine-size {
     border: 1px solid $color_primary;
     border-radius: 3px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    display: flex;
+    width: 90%;
+    float: left;
     
-    button {
-      width: 33.33%;
+    &.error {
+      border-color: $color_red;
+    }
+    
+    .template-button {
+      flex-grow: 1;
       background-color: $color_white;
+      border-radius: 0;
       
       &:hover, &.selected {
         background-color: $color_primary;
         color: $color_white;
       }
 
-      &:nth-of-type(1) {
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
+      &:first-of-type {
+        border-radius: initial;
+        border-top-left-radius: 2px;
+        border-bottom-left-radius: 2px;
+        
       }
 
-      &:nth-of-type(2) {
-        border-radius: 0;
-      }
-
-      &:nth-of-type(3) {
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
+      &:last-of-type {
+        border-radius: initial;
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px;
       }
     }
+
+    &.disabled {
+      border-color: $color_disabled;
+      .template-button {
+        &.selected {
+          background-color: $color_disabled;
+        }
+      }
+    }
+  }
+
+  .info-icon {
+    float: right;
+    color: $color_disabled;
+    margin-top: 7px;
+    cursor: pointer;
   }
 
   &.form-buttons {
     margin-top: 20px;
     display: flex;
     justify-content: space-between;
+  }
+}
+
+.form {
+  .select-error {
+    color: $color_red;
+    font-size: 0.75rem;
+    position: absolute;
+    bottom: 8px;
+    margin: 0;
   }
 }

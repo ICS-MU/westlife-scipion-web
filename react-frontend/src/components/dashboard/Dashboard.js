@@ -14,9 +14,16 @@ import Grid from 'material-ui/Grid'
 import UndeployIcon from 'material-ui-icons/Close'
 import ReplayIcon from 'material-ui-icons/Replay'
 import AddIcon from 'material-ui-icons/Add'
+import EditIcon from 'material-ui-icons/Edit'
 import DescriptionIcon from 'material-ui-icons/Description'
+import DeleteIcon from 'material-ui-icons/DeleteForever'
+import SearchIcon from 'material-ui-icons/Search'
+import { CircularProgress } from 'material-ui/Progress'
+import Waypoint from 'react-waypoint'
 
-import { listRunningDeployments } from '../../actions/action_deployment'
+import { listRunningDeployments, listPastDeployments, 
+  undeployDeployment, deletePastDeployment } from '../../actions/action_deployment'
+import { showSuccess } from '../../actions/action_notification'
 import { getRoutePath } from '../../routes'
 import ConfirmDialog from '../ui/components/ConfirmDialog/ConfirmDialog'
 import DeploymentFormDrawer from '../deployment/components/DeploymentFormDrawer'
@@ -33,6 +40,10 @@ class Dashboard extends Component {
         open: false,
         item: null
       },
+      deleteDialog: {
+        open: false,
+        item: null
+      },
       deploymentFormDrawer: {
         open: false,
         item: null,
@@ -41,6 +52,10 @@ class Dashboard extends Component {
       deploymentLogDrawer: {
         open: false,
         item: null
+      },
+      filter: {
+        term: '',
+        typingTimeout: 0
       }
     }
   }
@@ -64,8 +79,43 @@ class Dashboard extends Component {
     })
   }
 
-  undeployDeployment = () => {
-    this.closeUndeployDialog()
+  undeployDeploymentConfirm = () => {
+    const { undeployDeployment, showSuccess } = this.props
+    undeployDeployment(this.state.undeployDialog.item.id)
+      .then(() => {
+        showSuccess("Added to undeploy queue")
+        this.closeUndeployDialog()
+      })
+      .catch(_.noop)
+  }
+
+  openDeleteDialog = (deployment) => (evt) => {
+    evt.stopPropagation()
+    this.setState({
+      deleteDialog: {
+        open: true,
+        item: deployment
+      }
+    })
+  }
+
+  closeDeleteDialog = () => {
+    this.setState({
+      deleteDialog: {
+        ...this.state.deleteDialog,
+        open: false
+      }
+    })
+  }
+
+  deleteDeploymentConfirm = () => {
+    const { deletePastDeployment, showSuccess } = this.props
+    deletePastDeployment(this.state.deleteDialog.item.id)
+      .then(() => {
+        showSuccess("Deployment history item deleted")
+        this.closeDeleteDialog()
+      })
+      .catch(_.noop)
   }
 
   deploymentFormDrawerClose = () => {
@@ -78,9 +128,8 @@ class Dashboard extends Component {
     })
   }
 
-  deploymentFormDrawerOpen = (deployment = null) => (evt) => {
+  deploymentFormDrawerOpen = (method, deployment = null) => (evt) => {
     evt.stopPropagation()
-    const method = deployment ? DRAWER.METHOD.EDIT : DRAWER.METHOD.CREATE
     this.setState({
       deploymentFormDrawer: {
         open: true,
@@ -115,14 +164,83 @@ class Dashboard extends Component {
     }
   }
 
+  loadMorePastDeployments = () => {
+    const { deployments, listPastDeployments } = this.props
+    const offset = deployments.past.currentOffset, limit = DEPLOYMENT.LIST.LOADING_LIMIT
+    const nextOffset = offset + limit
+
+    if(deployments.past.hasMoreItems) {
+      this.setState({
+        isHistoryLoading: true
+      })
+
+      listPastDeployments(nextOffset, limit, this.state.filter.term)
+        .then(() => {
+          this.setState({ isHistoryLoading: false })
+        })
+        .catch(_.noop)
+    }
+  }
+
+  renderWaypoint = () => {
+    const { deployments } = this.props
+
+    if(!this.state.isHistoryLoading && deployments.past.isFulfilled) {
+      return (
+        <Waypoint 
+          onEnter={ this.loadMorePastDeployments }
+          bottomOffset={ -250 }
+        />
+      )
+    }
+  }
+
+  onFilterInputChange = (evt) => {
+    const { filter } = this.state
+    if(filter.typingTimeout) {
+      clearTimeout(filter.typingTimeout)
+    }
+
+    this.setState({
+      filter: {
+        term: evt.target.value,
+        typingTimeout: setTimeout(() => {
+          this.filterHistory()
+        }, 250)
+      }
+    })
+  } 
+
+  filterHistory = () => {
+    const { listPastDeployments } = this.props
+    const { filter } = this.state
+    const offset = 0, limit = DEPLOYMENT.LIST.LOADING_LIMIT
+
+    this.setState({
+      isHistoryLoading: true
+    })
+
+    listPastDeployments(offset, limit, filter.term)
+      .then((response) => {
+        this.setState({
+          isHistoryLoading: false
+        })
+      })
+      .catch(_.noop)
+  }
+
   componentDidMount() {
-    this.props.listRunningDeployments()
+    const { listRunningDeployments, listPastDeployments } = this.props
+
+    listRunningDeployments()
+      .catch(_.noop)
+    listPastDeployments(0, DEPLOYMENT.LIST.LOADING_LIMIT)
       .catch(_.noop)
   }
 
   render() {
     const { deployments } = this.props
-    const { undeployDialog, deploymentFormDrawer, deploymentLogDrawer } = this.state
+    const { undeployDialog, deleteDialog, deploymentFormDrawer, deploymentLogDrawer, isHistoryLoading, filter } = this.state
 
     return (
       <Grid item xs={ 12 } className="list">
@@ -134,7 +252,7 @@ class Dashboard extends Component {
                   Your running deployments
                 </Typography>
                 <div className="button-area">
-                  <Button className="btn color-white" variant="raised" onClick={ this.deploymentFormDrawerOpen() }>
+                  <Button className="btn color-white" variant="raised" onClick={ this.deploymentFormDrawerOpen(DRAWER.METHOD.CREATE) }>
                     <AddIcon className="left-icon" /> Create new
                   </Button>
                 </div>
@@ -165,14 +283,30 @@ class Dashboard extends Component {
                           <TableCell className="align-right">
                             <Tooltip title="View log" placement="bottom" disableTriggerFocus>
                               <span className="tooltip-button-wrapper">
-                                <IconButton className="icon-button" onClick={ this.deploymentLogDrawerOpen(deployment) }>
+                                <IconButton 
+                                  className="icon-button" 
+                                  onClick={ this.deploymentLogDrawerOpen(deployment) }
+                                  disabled={ deployment.status === DEPLOYMENT.STATUS.TO_DEPLOY }
+                                >
                                   <DescriptionIcon className="color-secondary" />
                                 </IconButton>
                               </span>
                             </Tooltip>
+                            <Tooltip title="Edit" placement="bottom" disableTriggerFocus>
+                              <IconButton
+                                className="icon-button"
+                                onClick={ this.deploymentFormDrawerOpen(DRAWER.METHOD.EDIT, deployment) }
+                              >
+                                <EditIcon className="color-amber" />
+                              </IconButton>
+                            </Tooltip>
                             <Tooltip title="Undeploy" placement="bottom" disableTriggerFocus>
                               <span className="tooltip-button-wrapper">
-                                <IconButton className="icon-button" onClick={ this.openUndeployDialog(deployment) }>
+                                <IconButton 
+                                  className="icon-button" 
+                                  onClick={ this.openUndeployDialog(deployment) }
+                                  disabled={ deployment.status !== DEPLOYMENT.STATUS.DEPLOYED }
+                                >
                                   <UndeployIcon className="color-red" />
                                 </IconButton>
                               </span>
@@ -200,53 +334,84 @@ class Dashboard extends Component {
                 <Typography variant="title" className="list-title">
                   Deployments history
                 </Typography>
+                <div className="filter-box">
+                  <SearchIcon className="search-icon" /> 
+                  <input 
+                    placeholder="Filter" 
+                    value={ filter.term }
+                    onChange={ this.onFilterInputChange }
+                  /> 
+                </div>
               </AppBar>
               { !_.isEmpty(deployments.past.data) && 
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Duration time</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell className="align-right">Finished</TableCell>
-                      <TableCell className="align-right">Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {
-                      _.map(deployments.past.data, (deployment) => (
-                        <TableRow key={ deployment.id }>
-                          <TableCell className="name">{ deployment.name }</TableCell>
-                          <TableCell>{ deployment.days_duration } days</TableCell>
-                          <TableCell><span className={ `${deployment.status} status` }>{ _.replace(deployment.status, '_', ' ') }</span></TableCell>
-                          <TableCell className="align-right datetime">{ moment.utc(deployment.modified).local().format(MOMENT_DATE_TIME_FORMAT) }</TableCell>
-                          <TableCell className="align-right">
-                            <Tooltip title="View log" placement="bottom" disableTriggerFocus>
-                              <span className="tooltip-button-wrapper">
-                                <IconButton className="icon-button" onClick={ this.deploymentLogDrawerOpen(deployment) }>
-                                  <DescriptionIcon className="color-secondary" />
-                                </IconButton>
-                              </span>
-                            </Tooltip>
-                            <Tooltip title="Re-deploy" placement="bottom" disableTriggerFocus>
-                              <span className="tooltip-button-wrapper">
-                                <IconButton className="icon-button" onClick={ this.deploymentFormDrawerOpen(deployment) }>
-                                  <ReplayIcon className="color-primary" />
-                                </IconButton>
-                              </span>
-                            </Tooltip>
+                <div>
+                  <Table className="history">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Name</TableCell>
+                        <TableCell>Duration</TableCell>
+                        <TableCell>Status</TableCell>
+                        <TableCell className="align-right">Modified</TableCell>
+                        <TableCell className="align-right">Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {
+                        _.map(deployments.past.data, (deployment) => (
+                          <TableRow key={ deployment.id }>
+                            <TableCell className="name">{ deployment.name }</TableCell>
+                            <TableCell>{ deployment.days_duration } days</TableCell>
+                            <TableCell><span className={ `${deployment.status} status` }>{ _.replace(deployment.status, '_', ' ') }</span></TableCell>
+                            <TableCell className="align-right datetime">{ moment.utc(deployment.modified).local().format(MOMENT_DATE_TIME_FORMAT) }</TableCell>
+                            <TableCell className="align-right">
+                              <Tooltip title="View log" placement="bottom" disableTriggerFocus>
+                                <span className="tooltip-button-wrapper">
+                                  <IconButton className="icon-button" onClick={ this.deploymentLogDrawerOpen(deployment) }>
+                                    <DescriptionIcon className="color-secondary" />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                              <Tooltip title="Re-deploy" placement="bottom" disableTriggerFocus>
+                                <span className="tooltip-button-wrapper">
+                                  <IconButton className="icon-button" onClick={ this.deploymentFormDrawerOpen(DRAWER.METHOD.REDEPLOY, deployment) }>
+                                    <ReplayIcon className="color-primary" />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                              <Tooltip title="Delete" placement="bottom" disableTriggerFocus>
+                                <span className="tooltip-button-wrapper">
+                                  <IconButton 
+                                    className="icon-button" 
+                                    onClick={ this.openDeleteDialog(deployment) }
+                                    disabled={ deployment.status !== DEPLOYMENT.STATUS.UNDEPLOYED }
+                                  >
+                                    <DeleteIcon className="color-red" />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      }
+                      { isHistoryLoading && deployments.past.hasMoreItems &&
+                        <TableRow>
+                          <TableCell colSpan="5" className="progress-cell">
+                            <CircularProgress color="primary" size={20} className="circular-progress" />
                           </TableCell>
                         </TableRow>
-                      ))
-                    }
-                  </TableBody>
-                </Table>
+                      }
+                    </TableBody>
+                  </Table>
+                  {
+                    this.renderWaypoint()
+                  }
+                </div>
               }
               { _.isEmpty(deployments.past.data) && 
                 <Table>
                   <TableBody>
                     <TableRow>
-                      <TableCell colSpan="5" className="no-rows">No past projects yet</TableCell>
+                      <TableCell colSpan="5" className="no-rows">No results</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -269,8 +434,17 @@ class Dashboard extends Component {
               type="UNDEPLOY"
               what="deployment"
               item={ undeployDialog.item ? undeployDialog.item.name : '' }
-              handleRequestClose={ this.undeployDeployment }
-              handleRequestConfirm={ this.closeUndeployDialog }
+              handleRequestClose={ this.closeUndeployDialog }
+              handleRequestConfirm={ this.undeployDeploymentConfirm }
+            />
+            <ConfirmDialog
+              open={ deleteDialog.open }
+              action="delete"
+              type="DELETE"
+              what="past deployment"
+              item={ deleteDialog.item ? deleteDialog.item.name : '' }
+              handleRequestClose={ this.closeDeleteDialog }
+              handleRequestConfirm={ this.deleteDeploymentConfirm }
             />
           </div>
         }
@@ -281,11 +455,17 @@ class Dashboard extends Component {
 
 Dashboard.propTypes = {
   deployments: PropTypes.object.isRequired,
-  listRunningDeployments: PropTypes.func.isRequired
+  listRunningDeployments: PropTypes.func.isRequired,
+  listPastDeployments: PropTypes.func.isRequired,
+  undeployDeployment: PropTypes.func.isRequired,
+  showSuccess: PropTypes.func.isRequired,
+  deletePastDeployment: PropTypes.func.isRequired
 }
 
 function mapStateToProps({ deployments }) {
   return { deployments }
 }
 
-export default connect(mapStateToProps, { listRunningDeployments })(Dashboard)
+export default connect(mapStateToProps, 
+  { listRunningDeployments, listPastDeployments, undeployDeployment, 
+    showSuccess, deletePastDeployment })(Dashboard)

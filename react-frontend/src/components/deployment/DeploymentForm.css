@@ -6,26 +6,56 @@
   .form .text-input {
     margin-bottom: 25px; }
 
-.button-area.machine-size {
+.button-area.posrel {
+  position: relative; }
+  .button-area.posrel:after {
+    content: "";
+    display: table;
+    clear: both; }
+
+.button-area .machine-size {
   border: 1px solid #3399d5;
   border-radius: 3px;
-  margin-bottom: 20px; }
-  .button-area.machine-size button {
-    width: 33.33%;
-    background-color: #ffffff; }
-    .button-area.machine-size button:hover, .button-area.machine-size button.selected {
+  margin-bottom: 25px;
+  display: flex;
+  width: 90%;
+  float: left; }
+  .button-area .machine-size.error {
+    border-color: #f44336; }
+  .button-area .machine-size .template-button {
+    flex-grow: 1;
+    background-color: #ffffff;
+    border-radius: 0; }
+    .button-area .machine-size .template-button:hover, .button-area .machine-size .template-button.selected {
       background-color: #3399d5;
       color: #ffffff; }
-    .button-area.machine-size button:nth-of-type(1) {
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0; }
-    .button-area.machine-size button:nth-of-type(2) {
-      border-radius: 0; }
-    .button-area.machine-size button:nth-of-type(3) {
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0; }
+    .button-area .machine-size .template-button:first-of-type {
+      border-radius: initial;
+      border-top-left-radius: 2px;
+      border-bottom-left-radius: 2px; }
+    .button-area .machine-size .template-button:last-of-type {
+      border-radius: initial;
+      border-top-right-radius: 2px;
+      border-bottom-right-radius: 2px; }
+  .button-area .machine-size.disabled {
+    border-color: #bbbbbb; }
+    .button-area .machine-size.disabled .template-button.selected {
+      background-color: #bbbbbb; }
+
+.button-area .info-icon {
+  float: right;
+  color: #bbbbbb;
+  margin-top: 7px;
+  cursor: pointer; }
 
 .button-area.form-buttons {
   margin-top: 20px;
   display: flex;
   justify-content: space-between; }
+
+.form .select-error {
+  color: #f44336;
+  font-size: 0.75rem;
+  position: absolute;
+  bottom: 8px;
+  margin: 0; }

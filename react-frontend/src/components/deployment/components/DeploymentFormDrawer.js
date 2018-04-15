@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import DrawerWindow from '../../ui/components/DrawerWindow/DrawerWindow'
 import DeploymentCreate from '../pages/DeploymentCreate'
 import DeploymentEdit from '../pages/DeploymentEdit'
+import DeploymentRedeploy from '../pages/DeploymentRedeploy'
 import { DRAWER } from '../../../constants'
 
 const DeploymentFormDrawer = (props) => {
@@ -16,6 +17,9 @@ const DeploymentFormDrawer = (props) => {
       }
       { method === DRAWER.METHOD.EDIT && 
         <DeploymentEdit handleRequestClose={ handleRequestClose } deployment={ deployment } />
+      }
+      { method === DRAWER.METHOD.REDEPLOY &&
+        <DeploymentRedeploy handleRequestClose={ handleRequestClose } deployment={ deployment } />
       }
     </DrawerWindow>
   )

@@ -3,9 +3,7 @@
 .show {
   .button-area {
     button {
-      &:last-child {
-        margin-left: 10px;
-      }
+      margin-left: 10px;
     }
   }
 
@@ -45,12 +43,30 @@
     margin-top: -5px;
     margin-left: 5px;
     font-size: 20px;
-    color: #cccccc;
+    color: $color_disabled;
     cursor: pointer;
   }
 
   .deployment-size {
     color: $color_text;
     font-size: 0.875rem;
+    min-width: 220px;
+  }
+
+  .status-show-wrapper {
+    min-width: 180px;
+  }
+
+  .undeploy-time-wrapper {
+    min-width: 230px;
+    span {
+      word-spacing: 5px;
+    }
+  }
+
+  .data-url-wrapper {
+    color: $color_text;
+    font-size: 0.875rem;
+    word-break: break-all;
   }
 }

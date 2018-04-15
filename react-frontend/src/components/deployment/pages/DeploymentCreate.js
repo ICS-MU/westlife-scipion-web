@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 
 import { showSuccess } from '../../../actions/action_notification'
+import { createDeployment } from '../../../actions/action_deployment'
 import DeploymentForm from '../DeploymentForm'
 import { FORM } from '../../../constants'
 
@@ -15,24 +16,18 @@ class DeploymentCreate extends Component {
     }
   }
 
-  onSubmit = (data) => {
-    const { handleRequestClose, /* createDeployment, */ showSuccess } = this.props
-
+  onSubmit = (data, templateId) => {
+    const { handleRequestClose, createDeployment, showSuccess } = this.props
     this.setState({ submitDisabled: true })
 
-    /*
-    createDeployment(data)
+    createDeployment({ ...data, template_id: templateId })
       .then(() => {
-        showSuccess('Deployment created', showLink here)
+        showSuccess('Deployment created, please wait until it is finished deploying')
         handleRequestClose()
       })
       .catch(() => {
         this.setState({ submitDisabled: false })
       })
-    */
-
-    handleRequestClose()
-    showSuccess('Deplyoment created')
   }
 
   render() {
@@ -51,9 +46,9 @@ class DeploymentCreate extends Component {
 }
 
 DeploymentCreate.propTypes = {
-  //createDeployment: PropTypes.func.isRequired,
+  createDeployment: PropTypes.func.isRequired,
   handleRequestClose: PropTypes.func.isRequired,
   showSuccess: PropTypes.func.isRequired
 }
 
-export default connect(null, { showSuccess })(DeploymentCreate)
+export default connect(null, { showSuccess, createDeployment })(DeploymentCreate)

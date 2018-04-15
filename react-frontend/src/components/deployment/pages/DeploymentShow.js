@@ -13,12 +13,16 @@ import UndeployIcon from 'material-ui-icons/Close'
 import DescriptionIcon from 'material-ui-icons/Description'
 import Tooltip from 'material-ui/Tooltip'
 import InfoIcon from 'material-ui-icons/Info'
+import EditIcon from 'material-ui-icons/Edit'
 
 import { getRoutePath } from '../../../routes'
-import { retrieveDeployment } from '../../../actions/action_deployment'
+import { retrieveDeployment, undeployDeployment } from '../../../actions/action_deployment'
+import { showSuccess } from '../../../actions/action_notification'
+import { shortenUrl } from '../../../helpers/helper_shorten_url'
 import ConfirmDialog from '../../ui/components/ConfirmDialog/ConfirmDialog'
 import DeploymentLogDrawer from '../components/DeploymentLogDrawer'
-import { DEPLOYMENT, MOMENT_DATE_TIME_FORMAT } from '../../../constants'
+import DeploymentFormDrawer from '../components/DeploymentFormDrawer'
+import { DEPLOYMENT, MOMENT_DATE_TIME_FORMAT, DRAWER } from '../../../constants'
 import './DeploymentShow.css'
 import novnc from '../../../images/novnc.png'
 
@@ -33,11 +37,14 @@ class DeploymentShow extends Component {
       deploymentLogDrawer: {
         open: false
       },
-      apiError: {}
+      apiError: {},
+      deploymentFormDrawer: {
+        open: false
+      },
     }
   }
 
-  openUndeployDialog = (deployment) => {
+  openUndeployDialog = () => {
     this.setState({
       undeployDialog: {
         open: true
@@ -53,8 +60,30 @@ class DeploymentShow extends Component {
     })
   }
 
-  undeployDeployment = () => {
-    this.closeUndeployDialog()
+  confirmUndeployDeployment = () => {
+    const { undeployDeployment, deployment, showSuccess, history} = this.props
+    undeployDeployment(deployment.id)
+      .then(() => {
+        showSuccess("Added to undeploy queue")
+        history.push(getRoutePath('dashboard'))
+      })
+      .catch(_.noop)
+  }
+
+  openEditDeploymentDialog = () => {
+    this.setState({
+      deploymentFormDrawer: {
+        open: true
+      }
+    })
+  }
+
+  closeEditDeploymentDialog = () => {
+    this.setState({
+      deploymentFormDrawer: {
+        open: false
+      }
+    })
   }
 
   deploymentLogDrawerClose = () => {
@@ -108,7 +137,7 @@ class DeploymentShow extends Component {
 
   render() {
     const { deployment, templates } = this.props
-    const { undeployDialog, deploymentLogDrawer, apiError } = this.state
+    const { undeployDialog, deploymentLogDrawer, apiError, deploymentFormDrawer } = this.state
 
     if(!deployment && _.isEmpty(apiError)) {
       return (
@@ -150,6 +179,9 @@ class DeploymentShow extends Component {
                 <Button className="btn color-white" variant="raised" onClick={ this.deploymentLogDrawerOpen }>
                   <DescriptionIcon className="left-icon" /> Log
                 </Button>
+                <Button className="btn color-white" variant="raised" onClick={ this.openEditDeploymentDialog }>
+                  <EditIcon className="left-icon" /> Edit
+                </Button>
                 <Button className="btn color-white" variant="raised" onClick={ this.openUndeployDialog }>
                   <UndeployIcon className="left-icon" /> Undeploy
                 </Button>
@@ -172,20 +204,22 @@ class DeploymentShow extends Component {
                   </Tooltip>
                 }
               </div>
-              <Typography>
+              <Typography className="status-show-wrapper">
                 <span className={ `${deployment.status} status` }>Status: { _.replace(deployment.status, '_', ' ') }</span>
               </Typography>
-              <Typography variant="body1">
-                <strong>Undeploy time:</strong> { 
+              <Typography variant="body1" className="undeploy-time-wrapper">
+                <strong>Undeploy time:</strong> <span>{ 
                   moment.utc(deployment.modified)
                     .add(deployment.days_duration, 'days')
                     .local()
                     .format(MOMENT_DATE_TIME_FORMAT)
-                  }
+                  }</span>
               </Typography>
-              <Typography variant="body1">
-                <strong>Deployment url:</strong> { deployment.data_url ? deployment.data_url : 'none' }
-              </Typography>
+              <div variant="body1" className="data-url-wrapper">
+                <Tooltip title={ deployment.data_url }>
+                  <span><strong>Data url:</strong> { deployment.data_url ? shortenUrl(deployment.data_url) : 'none' }</span>
+                </Tooltip>  
+              </div>
             </header>
             { deployment.status === DEPLOYMENT.STATUS.DEPLOYED && 
               <img src={ novnc } className="image" alt="novnc dummy img" />
@@ -207,14 +241,20 @@ class DeploymentShow extends Component {
           handleRequestClose={ this.deploymentLogDrawerClose }
           deployment={ deployment }
         />
+        <DeploymentFormDrawer
+          open={ deploymentFormDrawer.open }
+          handleRequestClose={ this.closeEditDeploymentDialog }
+          deployment={ deployment }
+          method={ DRAWER.METHOD.EDIT }
+        />
         <ConfirmDialog 
           open={ undeployDialog.open }
           action="undeploy"
           type="UNDEPLOY"
           what="deployment"
           item={ deployment.name }
-          handleRequestClose={ this.undeployDeployment }
-          handleRequestConfirm={ this.closeUndeployDialog }
+          handleRequestConfirm={ this.confirmUndeployDeployment }
+          handleRequestClose={ this.closeUndeployDialog }
         />
       </Grid>
     )
@@ -224,7 +264,9 @@ class DeploymentShow extends Component {
 
 DeploymentShow.propTypes = {
   deployment: PropTypes.object,
-  retrieveDeployment: PropTypes.func.isRequired
+  retrieveDeployment: PropTypes.func.isRequired,
+  undeployDeployment: PropTypes.func.isRequired,
+  showSuccess: PropTypes.func.isRequired
 }
 
 function mapStateToProps({ deployments, templates }, ownProps) {
@@ -234,5 +276,5 @@ function mapStateToProps({ deployments, templates }, ownProps) {
   }
 }
 
-export default connect(mapStateToProps, { retrieveDeployment })(DeploymentShow)
+export default connect(mapStateToProps, { retrieveDeployment, undeployDeployment, showSuccess })(DeploymentShow)
 

@@ -1,4 +1,4 @@
-.show .button-area button:last-child {
+.show .button-area button {
   margin-left: 10px; }
 
 .show .basic-info {
@@ -31,9 +31,23 @@
   margin-top: -5px;
   margin-left: 5px;
   font-size: 20px;
-  color: #cccccc;
+  color: #bbbbbb;
   cursor: pointer; }
 
 .show .deployment-size {
   color: #54585a;
-  font-size: 0.875rem; }
+  font-size: 0.875rem;
+  min-width: 220px; }
+
+.show .status-show-wrapper {
+  min-width: 180px; }
+
+.show .undeploy-time-wrapper {
+  min-width: 230px; }
+  .show .undeploy-time-wrapper span {
+    word-spacing: 5px; }
+
+.show .data-url-wrapper {
+  color: #54585a;
+  font-size: 0.875rem;
+  word-break: break-all; }

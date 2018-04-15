@@ -4,11 +4,11 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 
 import { showSuccess } from '../../../actions/action_notification'
-import { modifyDeployment } from '../../../actions/action_deployment'
+import { createDeployment } from '../../../actions/action_deployment'
 import DeploymentForm from '../DeploymentForm'
 import { FORM } from '../../../constants'
 
-class DeploymentEdit extends Component {
+class DeploymentRedeploy extends Component {
   constructor(props) {
     super(props)
 
@@ -18,13 +18,12 @@ class DeploymentEdit extends Component {
   }
 
   onSubmit = (data, templateId) => {
-    const { handleRequestClose, showSuccess, modifyDeployment, deployment } = this.props
-
+    const { handleRequestClose, createDeployment, showSuccess } = this.props
     this.setState({ submitDisabled: true })
 
-    modifyDeployment(deployment.id, { ...data, template_id: templateId })
+    createDeployment({ ...data, template_id: templateId })
       .then(() => {
-        showSuccess('Deployment updated')
+        showSuccess('Deployment created, please wait until it is finished deploying')
         handleRequestClose()
       })
       .catch(() => {
@@ -39,7 +38,7 @@ class DeploymentEdit extends Component {
     return (
       <DeploymentForm
         onSubmitAction={ this.onSubmit }
-        actionType={ FORM.ACTION_TYPE.EDIT }
+        actionType={ FORM.ACTION_TYPE.REDEPLOY }
         handleRequestClose={ handleRequestClose }
         submitDisabled={ submitDisabled }
         initialValues={ _.pick(deployment, ['name', 'days_duration', 'data_url', 'template_id']) }
@@ -48,11 +47,11 @@ class DeploymentEdit extends Component {
   }
 }
 
-DeploymentEdit.propTypes = {
-  modifyDeployment: PropTypes.func.isRequired,
+DeploymentRedeploy.propTypes = {
+  createDeployment: PropTypes.func.isRequired,
   deployment: PropTypes.object.isRequired,
   handleRequestClose: PropTypes.func.isRequired,
   showSuccess: PropTypes.func.isRequired,
 }
 
-export default connect(null, { showSuccess, modifyDeployment })(DeploymentEdit)
+export default connect(null, { showSuccess, createDeployment })(DeploymentRedeploy)

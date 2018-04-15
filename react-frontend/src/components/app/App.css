@@ -1,6 +1,5 @@
 .App {
-  height: 100%;
-  overflow: auto; }
+  height: 100%; }
 
 .snackbar svg {
   display: block;
@@ -9,7 +8,7 @@
   .snackbar svg.green {
     fill: #00c853; }
   .snackbar svg.red {
-    fill: #e53935; }
+    fill: #f44336; }
 
 .snackbar span {
   margin-top: 3px;

@@ -1,3 +1,35 @@
+@import '../../scss-shared/variables.scss';
+
 .second-box {
   margin-top: 100px;
+}
+
+.history {
+    .progress-cell {
+        text-align: center;
+    }
+}
+
+.second-box {
+    .filter-box {
+        background: $color_white;
+        border: 1px solid $color_grey-light;
+        border-radius: 2px;
+        
+        .search-icon {
+            fill: $color_text;
+            display: block;
+            float: left;
+            margin: 8px 0 8px 8px;
+        }
+
+        input {
+            outline: none;
+            font-size: 14px;
+            width: 200px;
+            margin-top: 3px;
+            padding: 8px 10px;
+            border: 0;
+        }
+    }
 }

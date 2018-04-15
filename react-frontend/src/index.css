@@ -14,10 +14,11 @@
   background-color: #ffffff;
   color: #393b3e; }
   .button-area .btn.color-white:hover {
-    background-color: #e5e5e5; }
+    background-color: #393b3e;
+    color: #ffffff; }
 
 .button-area .btn.color-red {
-  background-color: #e53935;
+  background-color: #f44336;
   color: #ffffff; }
   .button-area .btn.color-red:hover {
     background-color: #ab000d; }
@@ -32,10 +33,13 @@
   fill: #00b2a9; }
 
 .icon-button .color-red {
-  fill: #e53935; }
+  fill: #f44336; }
 
 .icon-button .color-primary {
   fill: #3399d5; }
+
+.icon-button .color-amber {
+  fill: #FFC300; }
 
 .icon-button:hover .color-secondary {
   fill: #00827a; }
@@ -45,6 +49,12 @@
 
 .icon-button:hover .color-primary {
   fill: #006ba3; }
+
+.icon-button:hover .color-amber {
+  fill: #C69700; }
+
+.icon-button:disabled .color-red, .icon-button:disabled .color-secondary, .icon-button:disabled .color-primary, .icon-button:disabled .color-amber {
+  fill: #bbbbbb; }
 
 .tooltip-button-wrapper {
   display: inline-block; }
@@ -152,7 +162,7 @@
   background-color: #996633; }
 
 .undeployed {
-  background-color: #e53935; }
+  background-color: #f44336; }
 
 .progress-box .circular-progress {
   margin: 0 auto;
@@ -165,8 +175,6 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
-  height: 100%;
-  overflow: auto; }
+  height: 100%; }
   body > div {
-    height: 100%;
-    overflow: auto; }
+    height: 100%; }

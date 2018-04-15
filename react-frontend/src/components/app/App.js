@@ -14,6 +14,7 @@ import { userIsAuthenticatedRedir, userIsNotAuthenticatedRedir } from '../../aut
 import Login from '../login/LoginDev'
 //import Login from '../login/Login'
 import AuthenticatedLayout from '../ui/AuthenticatedLayout'
+import ScrollToTop from './ScrollToTop'
 import './App.css'
 
 const LoginSection = userIsNotAuthenticatedRedir(Login)
@@ -61,44 +62,46 @@ const App = (props) => {
 
   return (
     <BrowserRouter>
-      <MuiThemeProvider theme={theme}>
-        <div className="App">
-          <Switch>
-            <Route path={ getRoutePath('login') } component={ LoginSection } />
-            <Route path={ getRoutePath('dashboard') } component={ AuthenticatedSection } />
-          </Switch>
-          <Snackbar
-            className="snackbar"
-            anchorOrigin={ { vertical: 'bottom', horizontal: 'right' } }
-            open={ notifications.errorMsg ? true : false }
-            message={ notifications.errorMsg ? [ 
-              <ErrorIcon key={ 0 } className="red" />, 
-              <SnackbarText key={ 1 }>{ notifications.errorMsg }</SnackbarText>
-              ] : '' 
-            }
-            autoHideDuration={ 3000 }
-            onClose={ hideErrorSnackbar }
-          />
-          <Snackbar
-            className="snackbar"
-            anchorOrigin={ {vertical: 'top', horizontal: 'right'} }
-            open={ notifications.successMsg ? true : false }
-            autoHideDuration={4500}
-            message={ notifications.successMsg ? [ 
-              <CheckCircle key={0} className="green" />, 
-              <SnackbarText key={1}>{ notifications.successMsg }</SnackbarText> 
-              ] : '' 
-            }
-            onClose={ hideSuccessSnackbar }
-            action={
-              notifications.successPath &&
-                <Link to={ notifications.successPath } className="link">
-                  View <KeyboardArrowRight />
-                </Link>
-            }
-          />
-        </div>
-      </MuiThemeProvider>
+      <ScrollToTop>
+        <MuiThemeProvider theme={theme}>
+            <div className="App">
+              <Switch>
+                <Route path={ getRoutePath('login') } component={ LoginSection } />
+                <Route path={ getRoutePath('dashboard') } component={ AuthenticatedSection } />
+              </Switch>
+              <Snackbar
+                className="snackbar"
+                anchorOrigin={ { vertical: 'bottom', horizontal: 'right' } }
+                open={ notifications.errorMsg ? true : false }
+                message={ notifications.errorMsg ? [ 
+                  <ErrorIcon key={ 0 } className="red" />, 
+                  <SnackbarText key={ 1 }>{ notifications.errorMsg }</SnackbarText>
+                  ] : '' 
+                }
+                autoHideDuration={ 3000 }
+                onClose={ hideErrorSnackbar }
+              />
+              <Snackbar
+                className="snackbar"
+                anchorOrigin={ {vertical: 'top', horizontal: 'right'} }
+                open={ notifications.successMsg ? true : false }
+                autoHideDuration={4500}
+                message={ notifications.successMsg ? [ 
+                  <CheckCircle key={0} className="green" />, 
+                  <SnackbarText key={1}>{ notifications.successMsg }</SnackbarText> 
+                  ] : '' 
+                }
+                onClose={ hideSuccessSnackbar }
+                action={
+                  notifications.successPath &&
+                    <Link to={ notifications.successPath } className="link">
+                      View <KeyboardArrowRight />
+                    </Link>
+                }
+              />
+            </div>
+        </MuiThemeProvider>
+      </ScrollToTop>
     </BrowserRouter>
   )
 }

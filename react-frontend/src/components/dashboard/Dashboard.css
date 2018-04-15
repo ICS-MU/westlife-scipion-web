@@ -1,2 +1,22 @@
 .second-box {
   margin-top: 100px; }
+
+.history .progress-cell {
+  text-align: center; }
+
+.second-box .filter-box {
+  background: #ffffff;
+  border: 1px solid #f1f4f6;
+  border-radius: 2px; }
+  .second-box .filter-box .search-icon {
+    fill: #54585a;
+    display: block;
+    float: left;
+    margin: 8px 0 8px 8px; }
+  .second-box .filter-box input {
+    outline: none;
+    font-size: 14px;
+    width: 200px;
+    margin-top: 3px;
+    padding: 8px 10px;
+    border: 0; }

@@ -65,14 +65,26 @@ export function api() {
       }
     },
     deployment: {
-      list(offset = 0, limit = 20, running = true) {
-        return requestFactory('get', '/deployments', { offset, limit, running })
+      list(offset = 0, limit = 20, running = true, filter = '') {
+        return requestFactory('get', '/deployments', { offset, limit, running, filter })
       },
       retrieve(deploymentId, running = false) {
         return requestFactory('get', `/deployments/${deploymentId}`, { running })
       },
       retrieveLog(deploymentId) {
         return requestFactory('get', `/deployments/${deploymentId}/log`)
+      },
+      create(data) {
+        return requestFactory('post', '/deployments', data)
+      },
+      modify(deploymentId, data) {
+        return requestFactory('patch', `/deployments/${deploymentId}`, data)
+      },
+      undeploy(deploymentId) {
+        return requestFactory('patch', `/deployments/${deploymentId}/undeploy`)
+      },
+      delete(deploymentId) {
+        return requestFactory('delete', `/deployments/${deploymentId}`)
       }
     },
     template: {
