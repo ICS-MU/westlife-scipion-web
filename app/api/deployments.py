@@ -13,6 +13,7 @@ class DeploymentsResource(ApiResource):
     """Deployment base resource"""
 
     forbidden_data_items = ["id", "user_id", "status", "modified", "olinip", "vnc_password"]
+    DEFAULT_FILTER_TERM = ""
 
     def __init__(self):
         self.repository = RepositoriesContainer.deployments_repository()
@@ -42,6 +43,12 @@ class DeploymentsResource(ApiResource):
             return None
         return True if running == "true" else False
 
+    def _get_filter_param(self) -> str:
+        filter_term = request.args.get("filter")
+        if filter_term is None:
+            return self.DEFAULT_FILTER_TERM
+        return filter_term
+
 
 class Deployments(DeploymentsResource):
     """Deployments resource"""
@@ -53,6 +60,7 @@ class Deployments(DeploymentsResource):
             user_deployments = self.repository.get_by_user_id(
                 current_user['id'],
                 self._get_running_param(),
+                self._get_filter_param(),
                 **self._get_selection_params()
             )
             user_deployments_dict = []
@@ -63,7 +71,8 @@ class Deployments(DeploymentsResource):
                 "deployments": user_deployments_dict,
                 "selection_params": {
                     **self._get_selection_params(),
-                    "running": self._get_running_param()
+                    "running": self._get_running_param(),
+                    "filter": self._get_filter_param()
                 }
             }
         except BoundaryValidationException as e:
@@ -130,7 +139,7 @@ class Deployment(DeploymentsResource):
             if deployment.get_user_id() != current_user['id']:
                 return self._resource_not_allowed_result() 
             if deployment.get_status() != const.STATUS_UNDEPLOYED:
-                raise DeploymentNotUndeployedException("Deployment isn't undeployed, delete forbidden")
+                raise DeploymentNotUndeployedException("Forbidden, deployment isn't undeployed")
             self.repository.delete(deployment)
             return { "message": "OK" }, 200
         except DeploymentNotFoundException:

@@ -30,10 +30,6 @@ def get_app():
     jwt = JWTManager(app)
 
     # SQLite & SQLAlchemy DB setup
-    #app.config['SQLALCHEMY_DATABASE_URI'] = const.DATABASE
-    # for local development, memory storage
-    #app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite://"
-    #db = SQLAlchemy(app)
     app.config['SQLALCHEMY_DATABASE_URI'] = const.DATABASE_URI
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

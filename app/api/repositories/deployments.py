@@ -19,14 +19,17 @@ class DeploymentsRepository:
             raise DeploymentNotFoundException("Deployment not found")
         return deployment
 
-    def get_by_user_id(self, user_id: str, running: bool, limit: int, offset: int) -> List[DeploymentEntity]:
+    def get_by_user_id(self, user_id: str, running: bool, filter_term: str, limit: int, offset: int) -> List[DeploymentEntity]:
         if running is True:
             return DeploymentEntity.query.filter_by(user_id=user_id) \
                 .filter(DeploymentEntity.status.in_(const.STATUSES_RUNNING)) \
                 .order_by(DeploymentEntity.id.desc()).limit(limit).offset(offset).all()
         elif running is False:
+            # filter_term is used in history
+            print(filter_term)
             return DeploymentEntity.query.filter_by(user_id=user_id) \
                 .filter(DeploymentEntity.status.in_(const.STATUSES_PAST)) \
+                .filter(DeploymentEntity.name.contains(filter_term)) \
                 .order_by(DeploymentEntity.modified.desc()).limit(limit).offset(offset).all()
         else:
             return DeploymentEntity.query.filter_by(user_id=user_id) \
