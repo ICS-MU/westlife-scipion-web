@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-""" """
+"""Insert demo data to database."""
 
-import json
 import sqlite3
-import b_constants as const  # pylint: disable=W0614,W0401
+import b_constants as const
 
 
 deployments_list = [
@@ -41,7 +40,6 @@ for deployment in deployments_list:
     c.execute('''INSERT INTO deployments (id,user_id,name,status,data_url,template_id)
                   VALUES (?,?,?,?,?,?)''', (deployment['id'], deployment['user_id'], deployment['name'],
                                           deployment['status'], deployment['data_url'], deployment['template_id']))
-#    print (template['name'])
 
 conn.commit()
 

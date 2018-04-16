@@ -2,26 +2,39 @@
 """Undeploy and delete deployments."""
 
 import os
-import json
 import shutil
 import logging.handlers
-from b_constants import *  # pylint: disable=W0614,W0401
+import b_constants as const
+import sqlite3
 
-UNDELETE_ATTEMPTS = 3
+
+def get_first_id_to_undeploy ():
+    """ Returns id of first deployment to be un-deployed. Returns 0 if nothing to un-deploy """
+    conn = sqlite3.connect(const.DATABASE)
+    with conn:
+        c = conn.cursor()
+        c.execute("SELECT id FROM deployments WHERE status=?",
+                  (const.STATUS_TO_UNDEPLOY,))
+        un_d_id = c.fetchone()
+    conn.close()
+
+    if un_d_id <> None:
+        return un_d_id[0]
+    else:
+        return None
 
 
 def un_deploy_scipion(id_to_delete):
     """ Starts un-deploy process. """
-    logger.debug("Starting undeploy for : %s", str(UNDELETE_ATTEMPTS))
+    logger.debug("Starting undeploy")
     os_result = os.system("/bin/bash /var/scipion/backend/undeploy_scipion.sh " + id_to_delete)
-#    logger.debug('Return value is: ' + str(os_result))
     logger.debug('Return value is: %s', str(os_result))
 
 
 def is_scipion_deleted(id_to_delete):
     """ Returns result of un-deployment process. """
     ok_result_string = "CFY <local> 'uninstall' workflow execution succeeded"
-    result_file = DEPLOYMENTS_DIR + id_to_delete + "/undelete_log.txt"
+    result_file = const.DEPLOYMENTS_DIR + id_to_delete + "/undelete_log.txt"
 
     try:
         result_string = open(result_file).read()
@@ -29,36 +42,23 @@ def is_scipion_deleted(id_to_delete):
         logger.warning('Error openning %s', result_file)
         return False
     return bool(ok_result_string in result_string)
-#    if ok_result_string in result_string:
-#        return True
-#    else:
-#        return False
 
 
-def clean_up_files(deleted_filename):
-    """ Changes records in database, moves files to appropriate folders."""
-    deleted_id = os.path.splitext(deleted_filename)[0]
-    shutil.move(DELETING_DIR + deleted_filename, DELETED_DIR + deleted_filename)
-    shutil.move(DEPLOYMENTS_DIR + deleted_id, DEPLOYMENTS_DIR + "deleted/")
-
-    logger.debug('Reading_database')
-    with open(DATABASE_FILE, 'r') as f_obj:
-        deployments = json.load(f_obj)
-    logger.debug("Changing_record %s", deleted_id)
-    for deployment in deployments:
-        if str(deployment['id']) == str(deleted_id):
-            deployment['status'] = "deleted"
-    logger.debug('Writing_database.')
-    with open(DATABASE_FILE, 'w') as f_obj:
-        json.dump(deployments, f_obj)
-
+def set_status (new_status, id_to_change_status):
+    """ Change status in database for deployment id"""
+    conn = sqlite3.connect(const.DATABASE)
+    with conn:
+        c = conn.cursor()
+        c.execute("UPDATE deployments set status= ? WHERE id = ?",
+                  (new_status, id_to_change_status,))
+    conn.close()
 
 # Set-up logging and start
 logger = logging.getLogger('Sci_Un_deploy')
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-f = logging.handlers.RotatingFileHandler(UN_DEPLOY_LOG_FILE, maxBytes=1000000, backupCount=3)
+f = logging.handlers.RotatingFileHandler(const.UN_DEPLOY_LOG_FILE, maxBytes=1000000, backupCount=3)
 f.setLevel((logging.DEBUG))
 f.setFormatter(formatter)
 logger.addHandler(f)
@@ -70,27 +70,18 @@ logger.addHandler(ch)
 
 logger.debug('Starting undeploy.')
 
-if os.listdir(TO_DELETE_DIR):
-    filename = os.listdir(TO_DELETE_DIR)[0]
-    deployment_id = os.path.splitext(filename)[0]
+deployment_id = get_first_id_to_undeploy()
+if deployment_id <> None:
 
-    shutil.move(TO_DELETE_DIR + filename, DELETING_DIR + filename)
     logger.debug('Un-deploying %s', deployment_id)
+    set_status(const.STATUS_UNDEPLOYING, deployment_id)
+    un_deploy_scipion(deployment_id)
 
-    while UNDELETE_ATTEMPTS > 0:
-        logger.debug("Remaining undeploy attempts: %s", str(UNDELETE_ATTEMPTS))
-        un_deploy_scipion(deployment_id)
-        UNDELETE_ATTEMPTS -= 1
-        if is_scipion_deleted(deployment_id):
-            logger.debug("Scipion %s succesfully undeployed.", deployment_id)
-            clean_up_files(filename)
-            break
-        elif UNDELETE_ATTEMPTS == 0:
-            logger.error("All un-deploy attempts have failed.")
-        else:
-
-            logger.debug("Scipion %s undeployment failed. Remaining %s attempts.", deployment_id, str(UNDELETE_ATTEMPTS))
-
-
+    if is_scipion_deleted(deployment_id):
+        logger.debug("Scipion %s successfully undeployed.", deployment_id)
+        shutil.move(const.DEPLOYMENTS_DIR + deployment_id, const.DEPLOYMENTS_DIR + "deleted/")
+        set_status(const.STATUS_UNDEPLOYED, deployment_id)
+    else:
+         logger.debug("Scipion %s undeployment failed.", deployment_id)
 else:
     logger.debug('Nothing to undeploy.')

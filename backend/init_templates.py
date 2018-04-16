@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-""" """
+"""Import templates data."""
 
 import sqlite3
-import b_constants as const  # pylint: disable=W0614,W0401
+import b_constants as const
 
 
 templates_list = [
@@ -38,7 +38,6 @@ c.execute(''' DELETE FROM templates''')
 for template in templates_list:
     c.execute('''INSERT INTO templates(name,memory,cores,olin_resource_tpl)
                   VALUES (?,?,?,?)''', (template['name'],template['memory'],template['cores'],template['olin_resource_tpl']))
-#    print (template['name'])
 
 conn.commit()
 
