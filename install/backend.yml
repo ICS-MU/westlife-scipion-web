@@ -27,70 +27,77 @@
       src: "backend-user.j2"
       dest: "/etc/sudoers.d/backend-user"
 
-  - name: Create directories under /var/scipion/
+  - name: Create directory cfy_wrapper_dir
     file:
-      path: /var/{{item}}
+      path: "{{ cfy_wrapper_dir }}"
+      state: directory
+      mode: 0775
+      owner: "{{be_user}}"
+      group: "{{be_group}}"
+
+  - name: Create directories under cfy_wrapper_dir
+    file:
+      path: "{{item}}"
       state: directory
       mode: 0775
       owner: "{{be_user}}"
       group: "{{be_group}}"
     with_items:
-      - scipion
-      - scipion/deployments
-      - scipion/deployments/deleted
-      - scipion/template
-      - scipion/to_deploy
-      - scipion/to_delete
-      - scipion/deploying
-      - scipion/deleting
-      - scipion/deployed
-      - scipion/deleted
-      - scipion/src
-      - scipion/log
+      - "{{ template_dir }}"
+      - "{{ deployments_dir }}"
+      - "{{ undeployed_dir }}"
+      - "{{ log_dir }}"
 
   - name: Copy backend dir
     copy:
       src: "{{ be_src_dir }}{{ item }}"
-      dest: "{{be_dir}}backend/"
+      dest: "{{ scripts_dir }}"
+      owner: "{{be_user}}"
+      group: "{{be_group}}"
+      mode: 0774
     with_items:
       - deploy_scipion.py
-      - directories.py
+      - b_constants.py
       - get_resources.py
       - undeploy_scipion.py
-      - init.py
+      - init_templates.py
+      - init_example_data.py
 
   - name: Copy and template bash scripts
     template:
       src: "{{ item.src }}"
       dest: "{{item.dest}}"
+      owner: "{{be_user}}"
+      group: "{{be_group}}"
+      mode: 0774
     with_items:
-      - {src: "{{ be_src_dir }}renew_proxy.j2",dest: "{{be_dir}}backend/renew_proxy.sh"}
-      - {src: "{{ be_src_dir }}deploy_scipion.j2",dest: "{{be_dir}}backend/deploy_scipion.sh"}
-      - {src: "{{ be_src_dir }}undeploy_scipion.j2",dest: "{{be_dir}}backend/undeploy_scipion.sh"}
+      - {src: "{{ be_src_dir }}renew_proxy.j2",dest: "{{ scripts_dir }}renew_proxy.sh"}
+      - {src: "{{ be_src_dir }}deploy_scipion.j2",dest: "{{ scripts_dir }}deploy_scipion.sh"}
+      - {src: "{{ be_src_dir }}undeploy_scipion.j2",dest: "{{ scripts_dir }}undeploy_scipion.sh"}
 
   - name: Clone repository to template dir
     git:
       repo: "https://github.com/ICS-MU/westlife-cloudify-scipion"
-      dest: "{{be_dir}}template"
+      dest: "{{ template_dir }}"
       depth: 1
       version: "HEAD"
 
 
   - name: Deploy cron job
     cron:
-      minute: "5"
+      minute: "*/5"
       name: "Scipion deploy cron job"
       cron_file: "scipion-deploy"
       user: "{{be_user}}"
-      job: "{{be_dir}}backend/deploy_scipion.py >> {{be_dir}}log/deploy.log 2>&1"
+      job: "{{ scripts_dir }}deploy_scipion.py >> {{ log_dir }}deploy.log 2>&1"
 
   - name: Undeploy cron job
     cron:
-      minute: "5"
+      minute: "*/5"
       name: "Scipion undeploy cron job"
       cron_file: "scipion-undeploy"
       user: "{{be_user}}"
-      job: "{{be_dir}}backend/undeploy_scipion.py >> {{be_dir}}log/deploy.log 2>&1"
+      job: "{{ scripts_dir }}undeploy_scipion.py >> {{ log_dir }}deploy.log 2>&1"
 
   - name: Renew proxy cron job
     cron:
@@ -99,4 +106,4 @@
       name: "Renew proxy"
       cron_file: "scipion-renew-proxy"
       user: "{{be_user}}"
-      job: "{{be_dir}}backend/renew_proxy.sh  >> {{be_dir}}log/renew.log 2>&1"
+      job: "{{ scripts_dir }}renew_proxy.sh  >> {{ log_dir }}renew.log 2>&1"

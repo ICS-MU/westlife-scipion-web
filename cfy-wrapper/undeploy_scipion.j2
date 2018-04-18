@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+DEPLOYMENTS_DIR="{{ deployments_dir }}"
+
+cd $DEPLOYMENTS_DIR/$1
+source /home/{{ be_user }}/cfy/bin/activate
+make cfy-undeploy > undelete_log.txt 2>&1
+
+

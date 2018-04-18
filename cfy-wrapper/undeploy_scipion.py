@@ -18,7 +18,7 @@ def get_first_id_to_undeploy ():
         un_d_id = c.fetchone()
     conn.close()
 
-    if un_d_id <> None:
+    if un_d_id is not None:
         return un_d_id[0]
     else:
         return None
@@ -44,7 +44,7 @@ def is_scipion_deleted(id_to_delete):
     return bool(ok_result_string in result_string)
 
 
-def set_status (new_status, id_to_change_status):
+def set_status(new_status, id_to_change_status):
     """ Change status in database for deployment id"""
     conn = sqlite3.connect(const.DATABASE)
     with conn:
@@ -52,6 +52,13 @@ def set_status (new_status, id_to_change_status):
         c.execute("UPDATE deployments set status= ? WHERE id = ?",
                   (new_status, id_to_change_status,))
     conn.close()
+
+
+def check_duration_time_outs():
+    """When duration time-outs mark as to_undeploy"""
+    # TODO: implement check_duration
+    pass
+
 
 # Set-up logging and start
 logger = logging.getLogger('Sci_Un_deploy')
@@ -69,9 +76,9 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 logger.debug('Starting undeploy.')
-
+check_duration_time_outs()
 deployment_id = get_first_id_to_undeploy()
-if deployment_id <> None:
+if deployment_id is not None:
 
     logger.debug('Un-deploying %s', deployment_id)
     set_status(const.STATUS_UNDEPLOYING, deployment_id)
@@ -79,7 +86,7 @@ if deployment_id <> None:
 
     if is_scipion_deleted(deployment_id):
         logger.debug("Scipion %s successfully undeployed.", deployment_id)
-        shutil.move(const.DEPLOYMENTS_DIR + deployment_id, const.DEPLOYMENTS_DIR + "deleted/")
+        shutil.move(const.DEPLOYMENTS_DIR + deployment_id, const.DEPLOYMENTS_DIR + "undeployed/")
         set_status(const.STATUS_UNDEPLOYED, deployment_id)
     else:
          logger.debug("Scipion %s undeployment failed.", deployment_id)

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-TEMPLATEDIR="{{ be_dir }}template"
-WORKDIR="{{ be_dir }}workdir"
+TEMPLATEDIR="{{ template_dir }}"
+DEPLOYMENTS_DIR="{{ deployments_dir }}"
 
-cd $WORKDIR/$1
+cd $DEPLOYMENTS_DIR/$1
 source /home/{{ be_user }}/cfy/bin/activate /log.txt 2>&1
 make cfy-deploy >> log.txt 2>&1
 make cfy-outputs | tail -n +2 > outputs.json
