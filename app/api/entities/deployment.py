@@ -10,12 +10,12 @@ class DeploymentEntity(BaseEntity):
     """Deployment entity"""
     __tablename__ = "deployments"
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String(255), nullable=False)
+    user_id = db.Column(db.String(255), nullable=False, index=True)
     name = db.Column(db.String(255), nullable=False)
     status = db.Column(db.String(30), nullable=False)
     modified = db.Column(db.DateTime, default=datetime.utcnow)
     days_duration = db.Column(db.Integer, nullable=False)
-    data_url = db.Column(db.String(1000), nullable=False)
+    data_url = db.Column(db.String(1000), nullable=True)
     olinip = db.Column(db.String(50), nullable=True)
     vnc_password = db.Column(db.String(255), nullable=True)
     template_id = db.Column(db.Integer, db.ForeignKey('templates.id'), nullable=False)
@@ -114,8 +114,8 @@ class DeploymentEntity(BaseEntity):
 
 class DeploymentEntityFactory(BaseEntityFactory):
     """Deployment entity factory"""
-    mandatory_items = ["user_id", "name", "data_url", "template_id", "days_duration"]
-    optional_items = []
+    mandatory_items = ["user_id", "name", "template_id", "days_duration"]
+    optional_items = ["data_url"]
 
     def create_from_post_data(self, data: dict, check_mandatory_items: bool = True) -> DeploymentEntity:
         try:
@@ -129,9 +129,10 @@ class DeploymentEntityFactory(BaseEntityFactory):
                 status=const.STATUS_TO_DEPLOY,
                 modified=datetime.utcnow(),
                 days_duration=data['days_duration'],
-                data_url=data['data_url'],
                 template_id=data['template_id']
             )
+            if "data_url" in data:
+                deployment.set_data_url(data['data_url'])
             return deployment
         except InvalidDataItemsException as e:
             raise DeploymentEntityFactoryException(str(e))

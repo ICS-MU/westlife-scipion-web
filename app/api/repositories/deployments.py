@@ -83,7 +83,6 @@ class DeploymentsValidator(BaseEntityValidator):
 
     def validate(self, deployment: DeploymentEntity):
         self._validate_string_size(deployment.get_name(), "Deployment's name", 1, self.NAME_MAX_SIZE)
-        self._validate_string_size(deployment.get_data_url(), "Deployment's data url", 1, self.DATA_URL_MAX_SIZE)
         self._validate_data_type(deployment.get_template_id(), int, "Deployment's template id")
         self._validate_data_type(deployment.get_days_duration(), int, "Deployment's duration")
         self._validate_integer_range(deployment.get_days_duration(), "Deployment's duration", 1, self.DAYS_DURATION_MAX_SIZE)

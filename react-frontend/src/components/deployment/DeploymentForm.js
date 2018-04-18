@@ -142,10 +142,9 @@ class DeploymentForm extends Component {
               <Field
                 name="data_url"
                 component={ TextField }
-                label="OneData URL *"
+                label="OneData URL"
                 className="text-input"
                 fullWidth={ true }
-                validate={ required }
                 disabled={ isEdit }
               />
 
