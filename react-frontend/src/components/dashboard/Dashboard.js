@@ -230,16 +230,16 @@ class Dashboard extends Component {
       .catch(_.noop)
   }
 
-  fetchRunningDeployments = () => {
+  fetchRunningDeployments = (promise = false) => {
     const { listRunningDeployments } = this.props
-    listRunningDeployments()
+    listRunningDeployments(promise)
       .catch(_.noop)
   }
 
   componentDidMount() {
     const { listPastDeployments } = this.props
 
-    this.fetchRunningDeployments()
+    this.fetchRunningDeployments(true)
     listPastDeployments(0, DEPLOYMENT.LIST.LOADING_LIMIT)
       .catch(_.noop)
     const intervalId = setInterval(this.fetchRunningDeployments, REFRESH_INTERVAL.RUNNING_DEPLOYMENTS)

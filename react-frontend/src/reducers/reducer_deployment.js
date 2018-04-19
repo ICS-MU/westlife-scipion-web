@@ -17,6 +17,7 @@ const initialState = {
 export default function deploymentUpdate(state = initialState, { type, payload }) {
   switch(type) {
     case `${DEPLOYMENT.LIST.RUNNING}_FULFILLED`:
+    case DEPLOYMENT.LIST.RUNNING:
       return {
         ...state,
         running: {
