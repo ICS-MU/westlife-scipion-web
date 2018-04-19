@@ -9,7 +9,7 @@ import logging.handlers
 import random, string
 import b_constants as const
 import sqlite3
-
+from datetime import datetime
 
 
 def get_random_passwd():
@@ -109,11 +109,12 @@ def get_first_id_to_deploy ():
 
 def set_status (new_status, id_to_change_status):
     """ Change status in database for deployment id"""
+    modified = datetime.utcnow()
     conn = sqlite3.connect(const.DATABASE)
     with conn:
         c = conn.cursor()
-        c.execute("UPDATE deployments set status= ? WHERE id = ?",
-                  (new_status, id_to_change_status,))
+        c.execute("UPDATE deployments set status= ?, modified = ? WHERE id = ?",
+                  (new_status, modified, id_to_change_status,))
     conn.close()
 
 def get_deployment_info(id_to_get_info):
@@ -145,11 +146,12 @@ def update_database_after_deployment(id_to_update):
     vnc_password = get_vnc_password(id_to_update)
     olinip = get_endpoint(id_to_update)
     conn = sqlite3.connect(const.DATABASE)
+    modified = datetime.utcnow()
     with conn:
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
-        c.execute("UPDATE deployments SET status = ? , vnc_password = ? , olinip = ? WHERE id = ?",
-                  (status, vnc_password, olinip, id_to_update))
+        c.execute("UPDATE deployments SET status = ? , vnc_password = ? , olinip = ?, modified = ? WHERE id = ?",
+                  (status, vnc_password, olinip, modified, id_to_update))
         data = c.fetchone()
     conn.close
 
@@ -162,6 +164,7 @@ def remove_files_after_failed_deployment(id_to_remove):
     shutil.move(DIR_TO_REMOVE, DIR_TO_REMOVE + ".failed")
 
 def init_logs():
+    """ """
     global logger
     logger = logging.getLogger('Sci_Deploy')
     logger.setLevel(logging.DEBUG)
@@ -193,8 +196,8 @@ def main():
         else:
             logger.debug("Deployment %s failed", deployment_id)
     # TODO: find and delete existing occi resources
-            remove_files_after_failed_deployment(deployment_id)
-            set_status(const.STATUS_TO_DEPLOY, deployment_id)
+#            remove_files_after_failed_deployment(deployment_id)
+            set_status(const.STATUS_ERROR, deployment_id)
 
     else:
         logger.debug('Nothing to deploy.')
