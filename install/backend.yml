@@ -15,12 +15,24 @@
       update_cache:     yes
       cache_valid_time: 3600
 
+  - name: Create be-group group
+    group:
+      name: "{{ be_group }}"
+      state: present
+
   - name: Create Backend user
     user:
       name: "{{ be_user }}"
       comment: "Backend user"
       state: present
+      groups: "{{ be_group }}"
       shell: /bin/bash
+
+  - name: Add www-data user to be_group
+    user:
+      name: www-data
+      groups: "{{ be_group }}"
+      append: yes
 
   - name: Add Backend user to sudo
     template:
@@ -47,6 +59,7 @@
       - "{{ deployments_dir }}"
       - "{{ undeployed_dir }}"
       - "{{ log_dir }}"
+      - "{{ scripts_dir }}"
 
   - name: Copy backend dir
     copy:
@@ -75,12 +88,12 @@
       - {src: "{{ be_src_dir }}deploy_scipion.j2",dest: "{{ scripts_dir }}deploy_scipion.sh"}
       - {src: "{{ be_src_dir }}undeploy_scipion.j2",dest: "{{ scripts_dir }}undeploy_scipion.sh"}
 
-  - name: Clone repository to template dir
-    git:
-      repo: "https://github.com/ICS-MU/westlife-cloudify-scipion"
-      dest: "{{ template_dir }}"
-      depth: 1
-      version: "HEAD"
+#  - name: Clone repository to template dir
+#    git:
+#      repo: "https://github.com/ICS-MU/westlife-cloudify-scipion"
+#      dest: "{{ template_dir }}"
+#      depth: 1
+#      version: "HEAD"
 
 
   - name: Deploy cron job
@@ -97,7 +110,7 @@
       name: "Scipion undeploy cron job"
       cron_file: "scipion-undeploy"
       user: "{{be_user}}"
-      job: "{{ scripts_dir }}undeploy_scipion.py >> {{ log_dir }}deploy.log 2>&1"
+      job: "{{ scripts_dir }}undeploy_scipion.py >> {{ log_dir }}un_deploy.log 2>&1"
 
   - name: Renew proxy cron job
     cron:

@@ -7,6 +7,7 @@ import logging.handlers
 import b_constants as const
 import sqlite3
 
+from datetime import datetime
 
 def get_first_id_to_undeploy ():
     """ Returns id of first deployment to be un-deployed. Returns 0 if nothing to un-deploy """
@@ -46,11 +47,12 @@ def is_scipion_deleted(id_to_delete):
 
 def set_status(new_status, id_to_change_status):
     """ Change status in database for deployment id"""
+    modified = datetime.utcnow()
     conn = sqlite3.connect(const.DATABASE)
     with conn:
         c = conn.cursor()
-        c.execute("UPDATE deployments set status= ? WHERE id = ?",
-                  (new_status, id_to_change_status,))
+        c.execute("UPDATE deployments set status= ?, modified = ? WHERE id = ?",
+                  (new_status, modified, id_to_change_status,))
     conn.close()
 
 
@@ -59,36 +61,70 @@ def check_duration_time_outs():
     # TODO: implement check_duration
     pass
 
+def to_delete_items_removal():
+    """ Find everything with to_delete status and remove from directories and database."""
+    conn = sqlite3.connect(const.DATABASE)
+    with conn:
+        c = conn.cursor()
+        c.execute("SELECT id, modified, status from deployments WHERE status=?",
+                  (const.STATUS_TO_DELETE,))
 
-# Set-up logging and start
-logger = logging.getLogger('Sci_Un_deploy')
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        data = c.fetchall()
+    conn.close
 
-f = logging.handlers.RotatingFileHandler(const.UN_DEPLOY_LOG_FILE, maxBytes=1000000, backupCount=3)
-f.setLevel((logging.DEBUG))
-f.setFormatter(formatter)
-logger.addHandler(f)
+    for row in data:
+        # remove directory
+        try:
+            shutil.rmtree(const.DEPLOYMENTS_DIR + str(row[0]))
+        except OSError as e:
+            logger.error("Unable to remove directory. %s", e)
 
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-ch.setFormatter(formatter)
-logger.addHandler(ch)
+        # delete info from database
+        conn = sqlite3.connect(const.DATABASE)
+        with conn:
+            c = conn.cursor()
+            c.execute("DELETE FROM deployments WHERE id=?", (str(row[0])))
 
-logger.debug('Starting undeploy.')
-check_duration_time_outs()
-deployment_id = get_first_id_to_undeploy()
-if deployment_id is not None:
+def init_logs():
+    """ """
+    global logger
+    logger = logging.getLogger('Sci_Un_deploy')
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    logger.debug('Un-deploying %s', deployment_id)
-    set_status(const.STATUS_UNDEPLOYING, deployment_id)
-    un_deploy_scipion(deployment_id)
+    f = logging.handlers.RotatingFileHandler(const.UN_DEPLOY_LOG_FILE, maxBytes=1000000, backupCount=3)
+    f.setLevel((logging.DEBUG))
+    f.setFormatter(formatter)
+    logger.addHandler(f)
 
-    if is_scipion_deleted(deployment_id):
-        logger.debug("Scipion %s successfully undeployed.", deployment_id)
-        shutil.move(const.DEPLOYMENTS_DIR + deployment_id, const.DEPLOYMENTS_DIR + "undeployed/")
-        set_status(const.STATUS_UNDEPLOYED, deployment_id)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+
+def main():
+    # Set-up logging and start
+    init_logs()
+    logger.debug('Starting undeploy.')
+    to_delete_items_removal()
+    check_duration_time_outs()
+    deployment_id = get_first_id_to_undeploy()
+    if deployment_id is not None:
+
+        logger.debug('Un-deploying %s', deployment_id)
+        set_status(const.STATUS_UNDEPLOYING, deployment_id)
+        un_deploy_scipion(deployment_id)
+
+        if is_scipion_deleted(deployment_id):
+            logger.debug("Scipion %s successfully undeployed.", deployment_id)
+#            shutil.move(const.DEPLOYMENTS_DIR + deployment_id, const.DEPLOYMENTS_DIR + "undeployed/")
+            set_status(const.STATUS_UNDEPLOYED, deployment_id)
+        else:
+            logger.debug("Scipion %s undeployment failed.", deployment_id)
     else:
-         logger.debug("Scipion %s undeployment failed.", deployment_id)
-else:
-    logger.debug('Nothing to undeploy.')
+        logger.debug('Nothing to undeploy.')
+
+
+if __name__ == "__main__":
+    main()
