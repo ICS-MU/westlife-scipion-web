@@ -216,7 +216,7 @@ class DeploymentShow extends Component {
                   }</span>
               </Typography>
               <div variant="body1" className="data-url-wrapper">
-                <Tooltip title={ deployment.data_url }>
+                <Tooltip title={ deployment.data_url ? deployment.data_url : 'none' }>
                   <span><strong>Data url:</strong> { deployment.data_url ? shortenUrl(deployment.data_url) : 'none' }</span>
                 </Tooltip>  
               </div>

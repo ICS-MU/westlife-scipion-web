@@ -20,11 +20,11 @@ export const listRunningDeployments = () => async (dispatch) => {
     const response = await fetchRunningDeploymentsPaginated(ownOffset, limit)
     if(response) {
       const data = _.get(response, 'deployments', [])
-      const lastPage = data.length === 0
+      const hasMorePages = data.length === limit
 
       appendToTempList(data)
 
-      if(!lastPage) {
+      if(hasMorePages) {
         return fetchAllData(ownOffset += limit)
       }
     }

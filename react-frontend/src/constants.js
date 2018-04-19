@@ -24,8 +24,9 @@ export const DEPLOYMENT = {
     TO_UNDEPLOY: 'to_undeploy',
     UNDEPLOYING: 'undeploying',
     UNDEPLOYED: 'undeployed',
+    ERROR: 'error',
     RUNNING: ['to_deploy', 'deploying', 'deployed'],
-    PAST: ['to_undeploy', 'undeploying', 'undeployed']
+    PAST: ['to_undeploy', 'undeploying', 'undeployed', 'error']
   }
 }
 
@@ -60,4 +61,10 @@ export const DRAWER = {
     EDIT: FORM.ACTION_TYPE.EDIT,
     REDEPLOY: FORM.ACTION_TYPE.REDEPLOY
   }
+}
+
+// in miliseconds
+export const REFRESH_INTERVAL = {
+  LOG: 3000,
+  RUNNING_DEPLOYMENTS: 10000
 }

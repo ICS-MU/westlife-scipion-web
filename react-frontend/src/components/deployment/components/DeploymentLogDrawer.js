@@ -8,6 +8,7 @@ import _ from 'lodash'
 
 import { retrieveLog } from '../../../actions/action_deployment'
 import DrawerWindow from '../../ui/components/DrawerWindow/DrawerWindow'
+import { REFRESH_INTERVAL } from '../../../constants'
 import './DeploymentLogDrawer.css'
 
 class DeploymentLogDrawer extends Component {
@@ -20,30 +21,38 @@ class DeploymentLogDrawer extends Component {
         }
     }
 
+    fetchLog = () => {
+        const { open, deployment } = this.props
+        if(open) {
+            retrieveLog(deployment.id)
+            .then((response) => {
+                this.setState({
+                    log: response
+                })
+            })
+            .catch((error) => {
+                const status = _.get(error, 'response.status', 'Ups')
+                const message = _.get(error, 'response.data.message', 'Something went wrong')
+
+                this.setState({
+                    log: '',
+                    apiError: {
+                        status,
+                        message
+                    }
+                })
+            })
+             setTimeout(this.fetchLog, REFRESH_INTERVAL.LOG)
+        }
+    }
+
     componentDidUpdate(prevProps) {
         if(prevProps.open === false && this.props.open === true) {
             this.setState({
                 log: '',
                 apiError: {}
             })
-            retrieveLog(this.props.deployment.id)
-                .then((response) => {
-                    this.setState({
-                        log: response
-                    })
-                })
-                .catch((error) => {
-                    const status = _.get(error, 'response.status', 'Ups')
-                    const message = _.get(error, 'response.data.message', 'Something went wrong')
-
-                    this.setState({
-                        log: '',
-                        apiError: {
-                            status,
-                            message
-                        }
-                    })
-                })
+            this.fetchLog()
         }
     }
   

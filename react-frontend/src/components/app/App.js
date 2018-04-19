@@ -11,13 +11,16 @@ import KeyboardArrowRight from 'material-ui-icons/KeyboardArrowRight'
 import { hideSuccess, hideError } from '../../actions/action_notification'
 import { getRoutePath } from '../../routes'
 import { userIsAuthenticatedRedir, userIsNotAuthenticatedRedir } from '../../auth'
-import Login from '../login/LoginDev'
-//import Login from '../login/Login'
+import LoginDev from '../login/LoginDev'
+import Login from '../login/Login'
 import AuthenticatedLayout from '../ui/AuthenticatedLayout'
 import ScrollToTop from './ScrollToTop'
 import './App.css'
 
-const LoginSection = userIsNotAuthenticatedRedir(Login)
+const LoginSection = process.env.NODE_ENV === 'production' ? 
+  userIsNotAuthenticatedRedir(Login) : 
+  userIsNotAuthenticatedRedir(LoginDev)
+
 const AuthenticatedSection = userIsAuthenticatedRedir(AuthenticatedLayout)
 
 const theme = createMuiTheme({
@@ -71,7 +74,7 @@ const App = (props) => {
               </Switch>
               <Snackbar
                 className="snackbar"
-                anchorOrigin={ { vertical: 'bottom', horizontal: 'right' } }
+                anchorOrigin={ { vertical: 'bottom', horizontal: 'left' } }
                 open={ notifications.errorMsg ? true : false }
                 message={ notifications.errorMsg ? [ 
                   <ErrorIcon key={ 0 } className="red" />, 
@@ -83,7 +86,7 @@ const App = (props) => {
               />
               <Snackbar
                 className="snackbar"
-                anchorOrigin={ {vertical: 'top', horizontal: 'right'} }
+                anchorOrigin={ {vertical: 'bottom', horizontal: 'right'} }
                 open={ notifications.successMsg ? true : false }
                 autoHideDuration={4500}
                 message={ notifications.successMsg ? [ 
