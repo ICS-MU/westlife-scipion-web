@@ -36,6 +36,7 @@ def set_vnc_password(id_to_set_pwd):
     passwd_file = const.DEPLOYMENTS_DIR + str(id_to_set_pwd) + "/vncpasswd"
     replace_file = const.DEPLOYMENTS_DIR + str(id_to_set_pwd) + "/scipion-inputs.yaml.m4"
     # Set vnc passwd
+    logger.debug("Setting VNC password for %s", str(id_to_set_pwd))
     if not os.path.exists(passwd_file):
         logger.debug("Setting VNC password.")
         passwd = get_random_passwd()
@@ -54,7 +55,7 @@ def set_vnc_password(id_to_set_pwd):
 
 def set_template_size(id_to_set_size, size_to_be_set):
     """Setting deployment size."""
-    logger.debug("Setting deployment size")
+    logger.debug("Setting deployment size for %s", str(id_to_set_size))
     replace_file = const.DEPLOYMENTS_DIR + str(id_to_set_size) + "/scipion-inputs.yaml.m4"
     with open(replace_file, "r") as f_obj:
         newText = f_obj.read().replace(const.OLIN_RESOURCE_TPL_PLACEHOLDER, str(get_resource_tpl(size_to_be_set)))
@@ -66,7 +67,7 @@ def deploy_scipion(id_to_deploy):
 
     THIS_SCI_DIR = const.DEPLOYMENTS_DIR + str(id_to_deploy)
     deployment = get_deployment_info(id_to_deploy)
-
+    logger.debug("Creating deployment directory for %s", str(id_to_deploy))
     try:
         shutil.copytree(const.TEMPLATE_DIR, THIS_SCI_DIR)
     except:
@@ -75,6 +76,7 @@ def deploy_scipion(id_to_deploy):
     set_vnc_password(id_to_deploy)
 
     set_template_size(id_to_deploy, deployment['name'])
+    logger.debug("Starting deployment process %s", str(id_to_deploy))
     os_result = os.system("/bin/bash " + const.SCRIPT_DIR + "deploy_scipion.sh " + str(id_to_deploy))
     logger.debug("Return value is: %s", str(os_result))
     logger.debug("Updating records for %s", id_to_deploy)
@@ -90,7 +92,7 @@ def get_endpoint(id_for_output):
         logger.error("Error openning file: %s", output_filename)
         sys.exit(1)
     else:
-        return outputs["web_endpoint"]["url"]
+        return outputs["web_endpoint"]["url"].replace('http://', '')
 
 def get_first_id_to_deploy ():
     """ Returns id of first deployment to be deployed. Returns 0 if nothing to deploy """
@@ -191,8 +193,8 @@ def main():
         logger.debug("Deploying %s", deployment_id)
         set_status(const.STATUS_DEPLOYING, deployment_id)
         if deploy_scipion(deployment_id) == 0:
-            update_database_after_deployment(deployment_id)
             logger.debug("Scipion %s succesfully deployed.", deployment_id)
+            update_database_after_deployment(deployment_id)
         else:
             logger.debug("Deployment %s failed", deployment_id)
     # TODO: find and delete existing occi resources
