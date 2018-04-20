@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import moment from 'moment'
+import RFB from '@novnc/novnc/core/rfb'
 import Paper from 'material-ui/Paper'
 import AppBar from 'material-ui/AppBar'
 import Typography from 'material-ui/Typography'
@@ -24,9 +25,10 @@ import DeploymentLogDrawer from '../components/DeploymentLogDrawer'
 import DeploymentFormDrawer from '../components/DeploymentFormDrawer'
 import { DEPLOYMENT, MOMENT_DATE_TIME_FORMAT, DRAWER } from '../../../constants'
 import './DeploymentShow.css'
-import novnc from '../../../images/novnc.png'
 
 class DeploymentShow extends Component {
+
+  rfb = null
 
   constructor(props) {
     super(props)
@@ -120,19 +122,43 @@ class DeploymentShow extends Component {
     )
   }
 
-  componentDidMount() {
-    this.props.retrieveDeployment(this.props.match.params.id, true)
-      .catch((error) => {
-        const status = _.get(error, 'response.status', 'Ups')
-        const message = _.get(error, 'response.data.message', 'Something went wrong')
-
-        this.setState({
-          apiError: {
-            status,
-            message
-          }
-        })
+  initNoVNC = (deployment) => {
+    if(this.rfb === null) {
+      const url = `ws://${deployment.olinip}`
+      this.rfb = new RFB(this.containerDOM, url, {
+        shared: true,
+        credentials: { password: deployment.vnc_password }
       })
+    }
+  }
+
+  componentDidMount() {
+    const { deployment, retrieveDeployment, match } = this.props
+    if(!deployment) {
+      retrieveDeployment(match.params.id, true)
+        .then((response) => {
+          this.initNoVNC(response.value)
+        })
+        .catch((error) => {
+          const status = _.get(error, 'response.status', 'Ups')
+          const message = _.get(error, 'response.data.message', 'Something went wrong')
+
+          this.setState({
+            apiError: {
+              status,
+              message
+            }
+          })
+        })
+    } else {
+      this.initNoVNC(deployment)
+    }
+  }
+
+  componentWillUnmount() {
+    if(this.rfb !== null) {
+      this.rfb.disconnect()
+    }
   }
 
   render() {
@@ -222,7 +248,11 @@ class DeploymentShow extends Component {
               </div>
             </header>
             { deployment.status === DEPLOYMENT.STATUS.DEPLOYED && 
-              <img src={ novnc } className="image" alt="novnc dummy img" />
+              <div 
+                id="noVNC"
+                ref={ el => this.containerDOM = el }
+                className="noVNC">
+              </div>
             }
             { deployment.status !== DEPLOYMENT.STATUS.DEPLOYED &&
               <div className="deployment-not-ready">

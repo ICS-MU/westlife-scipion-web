@@ -1,5 +1,5 @@
-#SCIPION_BACK_DIR = "/opt/cfy-wrapper/"
-SCIPION_BACK_DIR = "/www/sites/scipion/"
+SCIPION_BACK_DIR = "/opt/cfy-wrapper/"
+#SCIPION_BACK_DIR = "/www/sites/scipion/"
 DEPLOYMENTS_DIR = SCIPION_BACK_DIR + "deployments/"
 DATABASE_URI = "sqlite:///" + SCIPION_BACK_DIR + "scipion-cloudify.db"
 
