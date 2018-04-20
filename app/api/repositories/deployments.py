@@ -15,7 +15,7 @@ class DeploymentsRepository:
 
     def get_by_id(self, deployment_id: int) -> DeploymentEntity:
         deployment = DeploymentEntity.query.get(deployment_id)
-        if deployment is None:
+        if (deployment is None) or deployment.is_deleting():
             raise DeploymentNotFoundException("Deployment not found")
         return deployment
 
@@ -71,7 +71,7 @@ class DeploymentsRepository:
 
     def delete(self, deployment_to_delete: DeploymentEntity):
         deployment = deployment_to_delete
-        db.session.delete(deployment)
+        deployment.status = const.STATUS_TO_DELETE
         db.session.commit()
 
 class DeploymentsValidator(BaseEntityValidator):
