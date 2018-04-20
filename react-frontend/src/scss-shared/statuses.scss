@@ -21,13 +21,17 @@
 }
 
 .to_undeploy {
-    background-color: $color_grey;
+    background-color: $color_disabled;
 }
 
 .undeploying {
     background-color: $color_brown;
 }
 
-.undeployed {
+.error {
     background-color: $color_red;
+}
+
+.undeployed {
+    background-color: $color_black;
 }

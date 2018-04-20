@@ -138,7 +138,7 @@ class Deployment(DeploymentsResource):
             deployment = self.repository.get_by_id(deployment_id)
             if deployment.get_user_id() != current_user['id']:
                 return self._resource_not_allowed_result() 
-            if deployment.get_status() != const.STATUS_UNDEPLOYED:
+            if deployment.get_status() not in [const.STATUS_UNDEPLOYED, const.STATUS_ERROR]:
                 raise DeploymentNotUndeployedException("Forbidden, deployment isn't undeployed")
             self.repository.delete(deployment)
             return { "message": "OK" }, 200

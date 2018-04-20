@@ -97,6 +97,9 @@ class DeploymentEntity(BaseEntity):
     def is_past(self) -> bool:
         return not self.is_running()
 
+    def is_deleting(self) -> bool:
+        return self.status == const.STATUS_TO_DELETE
+
     def to_dict(self) -> dict:
         return {
             "id": self.get_id(),

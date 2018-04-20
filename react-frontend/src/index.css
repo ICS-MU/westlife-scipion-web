@@ -156,13 +156,16 @@
   background-color: #00b2a9; }
 
 .to_undeploy {
-  background-color: #393b3e; }
+  background-color: #bbbbbb; }
 
 .undeploying {
   background-color: #996633; }
 
-.undeployed {
+.error {
   background-color: #f44336; }
+
+.undeployed {
+  background-color: #000000; }
 
 .progress-box .circular-progress {
   margin: 0 auto;

@@ -10,7 +10,6 @@ import Button from 'material-ui/Button'
 import InfoIcon from 'material-ui-icons/Info'
 import Tooltip from 'material-ui/Tooltip'
 import { TextField } from 'redux-form-material-ui'
-import { InputAdornment } from 'material-ui/Input'
 import { CircularProgress } from 'material-ui/Progress'
 
 import { required, positiveNumber } from '../../validators/common_validator'
@@ -128,15 +127,14 @@ class DeploymentForm extends Component {
               <Field
                 name="days_duration"
                 component={ TextField }
-                label="Duration time *"
+                label="Duration time (days) *"
                 className="text-input"
                 parse={ value => !value ? null : Number(value) }
                 fullWidth={ true }
                 validate={ [ required, positiveNumber ] }
                 type="number"
-                InputProps={{
-                  min: 1,
-                  startAdornment: <InputAdornment position="start">Days</InputAdornment>,
+                inputProps={{
+                  min: 1
                 }}
               />
               <Field

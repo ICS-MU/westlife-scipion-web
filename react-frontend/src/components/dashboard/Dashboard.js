@@ -28,7 +28,7 @@ import { getRoutePath } from '../../routes'
 import ConfirmDialog from '../ui/components/ConfirmDialog/ConfirmDialog'
 import DeploymentFormDrawer from '../deployment/components/DeploymentFormDrawer'
 import DeploymentLogDrawer from '../deployment/components/DeploymentLogDrawer'
-import { MOMENT_DATE_TIME_FORMAT, DRAWER, DEPLOYMENT } from '../../constants'
+import { MOMENT_DATE_TIME_FORMAT, DRAWER, DEPLOYMENT, REFRESH_INTERVAL } from '../../constants'
 
 import './Dashboard.css'
 
@@ -56,7 +56,8 @@ class Dashboard extends Component {
       filter: {
         term: '',
         typingTimeout: 0
-      }
+      },
+      refreshInterval: null
     }
   }
 
@@ -121,8 +122,8 @@ class Dashboard extends Component {
   deploymentFormDrawerClose = () => {
     this.setState({
       deploymentFormDrawer: {
+        ...this.state.deploymentFormDrawer,
         open: false,
-        item: null,
         method: ''
       }
     })
@@ -142,8 +143,8 @@ class Dashboard extends Component {
   deploymentLogDrawerClose = () => {
     this.setState({
       deploymentLogDrawer: {
-        open: false,
-        item: null
+        ...this.state.deploymentLogDrawer,
+        open: false
       }
     })
   }
@@ -229,13 +230,26 @@ class Dashboard extends Component {
       .catch(_.noop)
   }
 
-  componentDidMount() {
-    const { listRunningDeployments, listPastDeployments } = this.props
-
-    listRunningDeployments()
+  fetchRunningDeployments = (promise = false) => {
+    const { listRunningDeployments } = this.props
+    listRunningDeployments(promise)
       .catch(_.noop)
+  }
+
+  componentDidMount() {
+    const { listPastDeployments } = this.props
+
+    this.fetchRunningDeployments(true)
     listPastDeployments(0, DEPLOYMENT.LIST.LOADING_LIMIT)
       .catch(_.noop)
+    const intervalId = setInterval(this.fetchRunningDeployments, REFRESH_INTERVAL.RUNNING_DEPLOYMENTS)
+    this.setState({
+      refreshInterval: intervalId
+    })
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.refreshInterval)
   }
 
   render() {
@@ -383,7 +397,7 @@ class Dashboard extends Component {
                                   <IconButton 
                                     className="icon-button" 
                                     onClick={ this.openDeleteDialog(deployment) }
-                                    disabled={ deployment.status !== DEPLOYMENT.STATUS.UNDEPLOYED }
+                                    disabled={ !_.includes([DEPLOYMENT.STATUS.UNDEPLOYED, DEPLOYMENT.STATUS.ERROR], deployment.status) }
                                   >
                                     <DeleteIcon className="color-red" />
                                   </IconButton>

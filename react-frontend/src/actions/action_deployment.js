@@ -2,7 +2,7 @@ import _ from 'lodash'
 import { api } from '../api'
 import { DEPLOYMENT } from '../constants'
 
-export const listRunningDeployments = () => async (dispatch) => {
+export const listRunningDeployments = (promise = false) => async (dispatch) => {
   let offset = 0
   const limit = 50
   const running = true
@@ -20,26 +20,34 @@ export const listRunningDeployments = () => async (dispatch) => {
     const response = await fetchRunningDeploymentsPaginated(ownOffset, limit)
     if(response) {
       const data = _.get(response, 'deployments', [])
-      const lastPage = data.length === 0
+      const hasMorePages = data.length === limit
 
       appendToTempList(data)
 
-      if(!lastPage) {
+      if(hasMorePages) {
         return fetchAllData(ownOffset += limit)
       }
     }
     return response
   }
 
-  return dispatch({
-    type: DEPLOYMENT.LIST.RUNNING,
-    payload: {
-      promise: (async () => {
-        await fetchAllData()
-        return tmpDeployments
-      })()
-    }
-  })
+  if(promise) {
+    return dispatch({
+      type: DEPLOYMENT.LIST.RUNNING,
+      payload: {
+        promise: (async () => {
+          await fetchAllData()
+          return tmpDeployments
+        })()
+      }
+    })
+  } else {
+    await fetchAllData()
+    return dispatch({
+      type: DEPLOYMENT.LIST.RUNNING,
+      payload: tmpDeployments
+    })
+  }
 }
 
 export const listPastDeployments = (offset, limit, filterTerm = '') => async (dispatch) => {

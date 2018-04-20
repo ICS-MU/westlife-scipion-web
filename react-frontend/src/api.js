@@ -6,9 +6,9 @@ import { token } from './helpers/helper_authenticated_user'
 import { logout } from './actions/action_authenticated_user'
 import { showError } from './actions/action_notification'
 
-//development TODO: delete on production
-export const BASE_API_URL = 'http://127.0.0.1:5000/api'
-//export const BASE_API_URL = `${window.location.protocol}//${window.location.hostname}/api`
+export const BASE_API_URL = process.env.NODE_ENV === 'production' ? 
+  `${window.location.protocol}//${window.location.hostname}/api` :
+  'http://127.0.0.1:5000/api'
 
 axios.defaults.baseURL = BASE_API_URL;
 axios.defaults.headers.common = {
