@@ -5,7 +5,7 @@ be_src_dir: "../cfy-wrapper/"
 cfy_wrapper_dir: "/opt/cfy-wrapper/"
 template_dir: "{{ cfy_wrapper_dir }}template/"
 deployments_dir: "{{ cfy_wrapper_dir }}deployments/"
-undeployed_dir: "{{ cfy_wrapper_dir }}undeployed/"
+
 log_dir: "{{ cfy_wrapper_dir }}log/"
 scripts_dir: "{{ cfy_wrapper_dir }}backend/"
 

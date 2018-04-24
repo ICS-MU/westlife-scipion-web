@@ -6,7 +6,8 @@ import json
 import shutil
 import sys
 import logging.handlers
-import random, string
+import random
+import string
 import b_constants as const
 import sqlite3
 from datetime import datetime
@@ -62,6 +63,7 @@ def set_template_size(id_to_set_size, size_to_be_set):
     with open(replace_file, "w") as f_obj:
         f_obj.write(newText)
 
+
 def deploy_scipion(id_to_deploy):
     """Deploy Scipion"""
 
@@ -77,10 +79,12 @@ def deploy_scipion(id_to_deploy):
 
     set_template_size(id_to_deploy, deployment['name'])
     logger.debug("Starting deployment process %s", str(id_to_deploy))
-    os_result = os.system("/bin/bash " + const.SCRIPT_DIR + "deploy_scipion.sh " + str(id_to_deploy))
+    os_result = os.system("/bin/bash " + const.DEPLOY_SCRIPT_FILE + " " + str(id_to_deploy))
     logger.debug("Return value is: %s", str(os_result))
     logger.debug("Updating records for %s", id_to_deploy)
+    # TODO: map onedata drive
     return os_result
+
 
 def get_endpoint(id_for_output):
     """Returns endpoint retrieved from outputs.json file."""
@@ -93,6 +97,7 @@ def get_endpoint(id_for_output):
         sys.exit(1)
     else:
         return outputs["web_endpoint"]["url"].replace('http://', '')
+
 
 def get_first_id_to_deploy ():
     """ Returns id of first deployment to be deployed. Returns 0 if nothing to deploy """
@@ -109,6 +114,7 @@ def get_first_id_to_deploy ():
     else:
         return None
 
+
 def set_status (new_status, id_to_change_status):
     """ Change status in database for deployment id"""
     modified = datetime.utcnow()
@@ -118,6 +124,7 @@ def set_status (new_status, id_to_change_status):
         c.execute("UPDATE deployments set status= ?, modified = ? WHERE id = ?",
                   (new_status, modified, id_to_change_status,))
     conn.close()
+
 
 def get_deployment_info(id_to_get_info):
     """ """
@@ -131,7 +138,9 @@ def get_deployment_info(id_to_get_info):
     conn.close()
     return data
 
+
 def get_vnc_password (id_to_get_pwd):
+    """ """
     passwd_file = const.DEPLOYMENTS_DIR + str(id_to_get_pwd) + "/vncpasswd"
 
     try:
@@ -141,6 +150,7 @@ def get_vnc_password (id_to_get_pwd):
         logger.error("Error openning file: %s", passwd_file)
         sys.exit(1)
     return data
+
 
 def update_database_after_deployment(id_to_update):
     """ """
@@ -157,6 +167,7 @@ def update_database_after_deployment(id_to_update):
         data = c.fetchone()
     conn.close
 
+
 def remove_files_after_failed_deployment(id_to_remove):
     """ """
     DIR_TO_REMOVE = const.DEPLOYMENTS_DIR + str(id_to_remove)
@@ -164,6 +175,7 @@ def remove_files_after_failed_deployment(id_to_remove):
     if os.path.exists(DIR_TO_REMOVE + ".failed"):
         shutil.rmtree(DIR_TO_REMOVE + ".failed")
     shutil.move(DIR_TO_REMOVE, DIR_TO_REMOVE + ".failed")
+
 
 def init_logs():
     """ """
@@ -177,10 +189,10 @@ def init_logs():
     f.setFormatter(formatter)
     logger.addHandler(f)
 
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+#    ch = logging.StreamHandler()
+#    ch.setLevel(logging.DEBUG)
+#    ch.setFormatter(formatter)
+#    logger.addHandler(ch)
 
 
 def main():

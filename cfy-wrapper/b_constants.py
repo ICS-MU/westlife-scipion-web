@@ -9,6 +9,9 @@ SCRIPT_DIR = SCIPION_BACK_DIR + "backend/"
 
 DATABASE = SCIPION_BACK_DIR + "scipion-cloudify.db"
 
+DEPLOY_SCRIPT_FILE = SCRIPT_DIR + "deploy_scipion.sh"
+UNDEPLOY_SCRIPT_FILE = SCRIPT_DIR + "undeploy_scipion.sh"
+
 DEPLOY_LOG_FILE = LOG_DIR + 'deploy.log'
 UN_DEPLOY_LOG_FILE = LOG_DIR + 'un_deploy.log'
 

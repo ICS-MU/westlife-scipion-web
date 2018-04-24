@@ -6,8 +6,8 @@ import shutil
 import logging.handlers
 import b_constants as const
 import sqlite3
-
 from datetime import datetime
+
 
 def get_first_id_to_undeploy ():
     """ Returns id of first deployment to be un-deployed. Returns 0 if nothing to un-deploy """
@@ -28,19 +28,19 @@ def get_first_id_to_undeploy ():
 def un_deploy_scipion(id_to_delete):
     """ Starts un-deploy process. """
     logger.debug("Starting undeploy")
-    os_result = os.system("/bin/bash /var/scipion/backend/undeploy_scipion.sh " + id_to_delete)
+    os_result = os.system("/bin/bash " + const.UNDEPLOY_SCRIPT_FILE + " " + str(id_to_delete))
     logger.debug('Return value is: %s', str(os_result))
 
 
 def is_scipion_deleted(id_to_delete):
     """ Returns result of un-deployment process. """
     ok_result_string = "CFY <local> 'uninstall' workflow execution succeeded"
-    result_file = const.DEPLOYMENTS_DIR + id_to_delete + "/undelete_log.txt"
+    result_file = const.DEPLOYMENTS_DIR + str(id_to_delete) + "/undelete_log.txt"
 
     try:
         result_string = open(result_file).read()
     except IOError:
-        logger.warning('Error openning %s', result_file)
+        logger.error('Error openning %s', result_file)
         return False
     return bool(ok_result_string in result_string)
 
@@ -58,8 +58,21 @@ def set_status(new_status, id_to_change_status):
 
 def check_duration_time_outs():
     """When duration time-outs mark as to_undeploy"""
-    # TODO: implement check_duration
-    pass
+    now = datetime.utcnow()
+    conn = sqlite3.connect(const.DATABASE)
+    with conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute("SELECT id, modified, days_duration FROM deployments")
+        rows = c.fetchall()
+    conn.close
+
+    for row in rows:
+        r_id, r_modified, r_days_duration = row
+        difference = (now - datetime.strptime(str(r_modified), "%Y-%m-%d %H:%M:%S.%f")).days
+        if difference >= r_days_duration:
+            logger.debug("Scipion %s too old. Changing status to undeploy.", r_id)
+            set_status(const.STATUS_TO_UNDEPLOY, r_id)
 
 def to_delete_items_removal():
     """ Find everything with to_delete status and remove from directories and database."""
@@ -97,10 +110,10 @@ def init_logs():
     f.setFormatter(formatter)
     logger.addHandler(f)
 
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+#    ch = logging.StreamHandler()
+#    ch.setLevel(logging.DEBUG)
+#    ch.setFormatter(formatter)
+#    logger.addHandler(ch)
 
 
 def main():
@@ -118,7 +131,6 @@ def main():
 
         if is_scipion_deleted(deployment_id):
             logger.debug("Scipion %s successfully undeployed.", deployment_id)
-#            shutil.move(const.DEPLOYMENTS_DIR + deployment_id, const.DEPLOYMENTS_DIR + "undeployed/")
             set_status(const.STATUS_UNDEPLOYED, deployment_id)
         else:
             logger.debug("Scipion %s undeployment failed.", deployment_id)
