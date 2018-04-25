@@ -19,7 +19,7 @@ axios.defaults.headers.common = {
 const responseSuccessHandler = (response) => response.data || {}
 
 const responseErrorHandler = (error) => {
-  store.dispatch(showError(_.get(error, 'response.data.message', 'Something went wrong')))
+  store.dispatch(showError(_.get(error, 'response.data.message', 'Connection failed')))
 
   if(_.get(error, 'response.status') === 401) {
     store.dispatch(logout())

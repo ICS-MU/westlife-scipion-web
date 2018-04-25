@@ -141,7 +141,7 @@ class DeploymentShow extends Component {
         })
         .catch((error) => {
           const status = _.get(error, 'response.status', 'Ups')
-          const message = _.get(error, 'response.data.message', 'Something went wrong')
+          const message = _.get(error, 'response.data.message', 'Connection failed')
 
           this.setState({
             apiError: {

@@ -63,6 +63,17 @@ export const listPastDeployments = (offset, limit, filterTerm = '') => async (di
   })
 }
 
+export const refreshPastDeployments = (filterTerm = '') => async (dispatch) => {
+  const offset = 0
+  const limit = DEPLOYMENT.LIST.PAST_REFRESH_LIMIT
+  const running = false
+
+  return dispatch({
+    type: DEPLOYMENT.LIST.PAST_REFRESH,
+    payload: await api().deployment.list(offset, limit, running, filterTerm)
+  })
+}
+
 export const retrieveDeployment = (deploymentId, running) => async (dispatch) => {
   return dispatch({
     type: DEPLOYMENT.RETRIEVE,

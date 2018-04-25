@@ -10,11 +10,14 @@ const initialState = {
     isFulfilled: false,
     currentOffset: 0,
     hasMoreItems: true,
+    filterTerm: '',
     data: []
   }
 }
 
 export default function deploymentUpdate(state = initialState, { type, payload }) {
+  const selection_params = _.get(payload, 'selection_params', {})
+  const deployments = _.get(payload, 'deployments', [])
   switch(type) {
     case `${DEPLOYMENT.LIST.RUNNING}_FULFILLED`:
     case DEPLOYMENT.LIST.RUNNING:
@@ -26,11 +29,11 @@ export default function deploymentUpdate(state = initialState, { type, payload }
         }
       }
     case `${DEPLOYMENT.LIST.PAST}_FULFILLED`:
-      const { selection_params, deployments } = payload
       const stateCommon = {
         isFulfilled: true,
         currentOffset: selection_params.offset,
-        hasMoreItems: deployments.length === DEPLOYMENT.LIST.LOADING_LIMIT
+        hasMoreItems: deployments.length === DEPLOYMENT.LIST.LOADING_LIMIT,
+        filterTerm: selection_params.filter
       }
       if(selection_params.offset === 0) {
         return {
@@ -48,6 +51,19 @@ export default function deploymentUpdate(state = initialState, { type, payload }
           data: [ ...state.past.data, ...deployments ]
         }
       }
+    case DEPLOYMENT.LIST.PAST_REFRESH:
+      if(state.past.filterTerm === selection_params.filter) {
+        return {
+          ...state,
+          past: {
+            ...state.past,
+            data: _.unionWith(deployments, state.past.data, (newDpl, oldDpl) => {
+              return newDpl.id === oldDpl.id
+            })
+          }
+        }
+      }
+      return state
     case `${DEPLOYMENT.RETRIEVE}_FULFILLED`:
       const storedDeployment = _.find(state.running.data, { id: payload.id })
       if(_.isEqual(storedDeployment, payload)) {

@@ -20,9 +20,10 @@ import DeleteIcon from 'material-ui-icons/DeleteForever'
 import SearchIcon from 'material-ui-icons/Search'
 import { CircularProgress } from 'material-ui/Progress'
 import Waypoint from 'react-waypoint'
+import ScrollUpButton from 'react-scroll-up-button'
 
 import { listRunningDeployments, listPastDeployments, 
-  undeployDeployment, deletePastDeployment } from '../../actions/action_deployment'
+  undeployDeployment, deletePastDeployment, refreshPastDeployments } from '../../actions/action_deployment'
 import { showSuccess } from '../../actions/action_notification'
 import { getRoutePath } from '../../routes'
 import ConfirmDialog from '../ui/components/ConfirmDialog/ConfirmDialog'
@@ -237,12 +238,17 @@ class Dashboard extends Component {
   }
 
   componentDidMount() {
-    const { listPastDeployments } = this.props
+    const { listPastDeployments, refreshPastDeployments } = this.props
 
     this.fetchRunningDeployments(true)
     listPastDeployments(0, DEPLOYMENT.LIST.LOADING_LIMIT)
       .catch(_.noop)
-    const intervalId = setInterval(this.fetchRunningDeployments, REFRESH_INTERVAL.RUNNING_DEPLOYMENTS)
+    
+    const intervalId = setInterval(() => {
+      this.fetchRunningDeployments()
+      refreshPastDeployments(this.state.filter.term)
+        .catch(_.noop)
+    }, REFRESH_INTERVAL.DEPLOYMENTS)
     this.setState({
       refreshInterval: intervalId
     })
@@ -462,6 +468,12 @@ class Dashboard extends Component {
             />
           </div>
         }
+        <ScrollUpButton
+          StopPosition={0}
+          TransitionBtnPosition={150}
+          EasingType='easeOutCubic'
+          AnimationDuration={500}
+        />
       </Grid>
     )
   }
@@ -473,7 +485,8 @@ Dashboard.propTypes = {
   listPastDeployments: PropTypes.func.isRequired,
   undeployDeployment: PropTypes.func.isRequired,
   showSuccess: PropTypes.func.isRequired,
-  deletePastDeployment: PropTypes.func.isRequired
+  deletePastDeployment: PropTypes.func.isRequired,
+  refreshPastDeployments: PropTypes.func.isRequired
 }
 
 function mapStateToProps({ deployments }) {
@@ -482,4 +495,4 @@ function mapStateToProps({ deployments }) {
 
 export default connect(mapStateToProps, 
   { listRunningDeployments, listPastDeployments, undeployDeployment, 
-    showSuccess, deletePastDeployment })(Dashboard)
+    showSuccess, deletePastDeployment, refreshPastDeployments })(Dashboard)

@@ -27,15 +27,15 @@ class DeploymentLogDrawer extends Component {
             retrieveLog(deployment.id)
             .then((response) => {
                 this.setState({
-                    log: response
+                    log: response,
+                    apiError: {}
                 })
             })
             .catch((error) => {
                 const status = _.get(error, 'response.status', 'Ups')
-                const message = _.get(error, 'response.data.message', 'Something went wrong')
+                const message = _.get(error, 'response.data.message', 'Auto-refresh failed, probably because of poor internet connection')
 
                 this.setState({
-                    log: '',
                     apiError: {
                         status,
                         message
