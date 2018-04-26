@@ -124,7 +124,7 @@ class DeploymentShow extends Component {
 
   initNoVNC = (deployment) => {
     if(this.rfb === null) {
-      const url = `ws://${deployment.olinip}`
+      const url = `${ window.location.protocol === 'https:' ? 'wss' : 'ws' }://${ deployment.olinip }`
       this.rfb = new RFB(this.containerDOM, url, {
         shared: true,
         credentials: { password: deployment.vnc_password }
