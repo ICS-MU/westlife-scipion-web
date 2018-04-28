@@ -10,6 +10,7 @@ import random
 import string
 import b_constants as const
 import sqlite3
+import socket
 from datetime import datetime
 
 
@@ -96,8 +97,11 @@ def get_endpoint(id_for_output):
         logger.error("Error openning file: %s", output_filename)
         sys.exit(1)
     else:
-        return outputs["web_endpoint"]["url"].replace('http://', '')
-
+        endp = outputs["web_endpoint"]["url"].replace('http://', '')
+        ip,port = endp.split(":")
+        name,alias,addresslist = socket.gethostbyaddr(ip)
+        fqdn_endpoint = name + ":" + port
+        return fqdn_endpoint
 
 def get_first_id_to_deploy ():
     """ Returns id of first deployment to be deployed. Returns 0 if nothing to deploy """
@@ -219,5 +223,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
