@@ -43,6 +43,10 @@ class DeploymentShow extends Component {
       deploymentFormDrawer: {
         open: false
       },
+      noVNC: {
+        type: 'normal',
+        message: 'noVNC connecting, please wait...'
+      }
     }
   }
 
@@ -122,6 +126,25 @@ class DeploymentShow extends Component {
     )
   }
 
+  noVNCconnected = () => {
+    this.setState({
+      noVNC: {
+        message: ''
+      }
+    })
+  }
+
+  noVNCdisconnected = (evt) => {
+    if(!evt.detail.clean) {
+      this.setState({
+        noVNC: {
+          message: "noVNC connection error, look at the browser's console for further details",
+          type: 'error'
+        }
+      })
+    }
+  }
+
   initNoVNC = (deployment) => {
     if(this.rfb === null) {
       const url = `${ window.location.protocol === 'https:' ? 'wss' : 'ws' }://${ deployment.olinip }`
@@ -129,6 +152,8 @@ class DeploymentShow extends Component {
         shared: true,
         credentials: { password: deployment.vnc_password }
       })
+      this.rfb.addEventListener('connect', this.noVNCconnected)
+      this.rfb.addEventListener('disconnect', this.noVNCdisconnected)
     }
   }
 
@@ -157,13 +182,15 @@ class DeploymentShow extends Component {
 
   componentWillUnmount() {
     if(this.rfb !== null) {
-      this.rfb.disconnect()
+      if(this.rfb._rfb_connection_state !== "disconnected") {
+        this.rfb.disconnect()
+      }
     }
   }
 
   render() {
     const { deployment, templates } = this.props
-    const { undeployDialog, deploymentLogDrawer, apiError, deploymentFormDrawer } = this.state
+    const { undeployDialog, deploymentLogDrawer, apiError, deploymentFormDrawer, noVNC } = this.state
 
     if(!deployment && _.isEmpty(apiError)) {
       return (
@@ -248,10 +275,17 @@ class DeploymentShow extends Component {
               </div>
             </header>
             { deployment.status === DEPLOYMENT.STATUS.DEPLOYED && 
-              <div 
-                id="noVNC"
-                ref={ el => this.containerDOM = el }
-                className="noVNC">
+              <div>
+                { noVNC.message && 
+                  <Typography align="center" className={`${noVNC.type} noVNC-message`}>
+                    { noVNC.message }
+                  </Typography>
+                }
+                <div 
+                  id="noVNC"
+                  ref={ el => this.containerDOM = el }
+                  className="noVNC">
+                </div>
               </div>
             }
             { deployment.status !== DEPLOYMENT.STATUS.DEPLOYED &&

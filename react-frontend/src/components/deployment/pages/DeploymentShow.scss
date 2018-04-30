@@ -74,4 +74,14 @@
     margin-top: 10px;
     padding: 0 80px;
   }
+
+  .noVNC-message {
+    margin-top: 10px;
+    color: $color_primary;
+    
+    &.error {
+      color: $color_red;
+      background: transparent;
+    }
+  }
 }

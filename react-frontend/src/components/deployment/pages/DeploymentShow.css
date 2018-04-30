@@ -55,3 +55,10 @@
 .show .noVNC {
   margin-top: 10px;
   padding: 0 80px; }
+
+.show .noVNC-message {
+  margin-top: 10px;
+  color: #3399d5; }
+  .show .noVNC-message.error {
+    color: #f44336;
+    background: transparent; }
