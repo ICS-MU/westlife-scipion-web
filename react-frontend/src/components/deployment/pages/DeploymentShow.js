@@ -185,6 +185,8 @@ class DeploymentShow extends Component {
       if(this.rfb._rfb_connection_state !== "disconnected") {
         this.rfb.disconnect()
       }
+      this.rfb.removeEventListener('connect', this.noVNCconnected)
+      this.rfb.removeEventListener('disconnect', this.noVNCdisconnected)
     }
   }
 
