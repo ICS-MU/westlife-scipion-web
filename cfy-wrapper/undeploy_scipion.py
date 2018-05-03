@@ -96,7 +96,8 @@ def to_delete_items_removal():
         conn = sqlite3.connect(const.DATABASE)
         with conn:
             c = conn.cursor()
-            c.execute("DELETE FROM deployments WHERE id=?", (str(row[0])))
+            c.execute("DELETE FROM deployments WHERE id=?", (str(row[0]),))
+        logger.debug('Scipion %s deleted.', str(row[0]))
 
 def init_logs():
     """ """

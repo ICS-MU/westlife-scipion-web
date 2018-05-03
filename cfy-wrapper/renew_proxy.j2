@@ -11,5 +11,5 @@ else
    sudo chown $USERNAME:$GROUPNAME $FILE
 fi
 
-voms-proxy-init --voms gputest.metacentrum.cz --cert /home/$USERNAME/.globus/robotpublic.pem --key /home/$USERNAME/.globus/robotprivate.pem --rfc --out $FILE
+voms-proxy-init --voms gputest.metacentrum.cz --cert /home/$USERNAME/.globus/robotcert.crt --key /home/$USERNAME/.globus/robotkey.pem --rfc --out $FILE
 sudo chown $USERNAME:$GROUPNAME $FILE
