@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_simple import ( JWTManager, create_jwt )
 from datetime import timedelta
 # disable CORS on production environment later ...
-from flask_cors import CORS
+# from flask_cors import CORS
 import api.constants as const
 from api.users import IdentityResource
 from api.deployments import Deployments, Deployment, DeploymentLog, DeploymentUndeploy
@@ -22,7 +22,7 @@ def get_app():
     api = Api(app, "/api")
 
     # Cross origin resource sharing - disable in production env.
-    CORS(app)
+    # CORS(app)
 
     # Setup the Flask-JWT-Simple extension
     app.config['JWT_SECRET_KEY'] = "super_secret_scipion_cloudify_web_jwt_key"
