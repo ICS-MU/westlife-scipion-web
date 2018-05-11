@@ -145,7 +145,7 @@ class Deployment(DeploymentsResource):
         except DeploymentNotFoundException:
             return self._deployment_not_found_result()
         except DeploymentNotUndeployedException as e:
-             return { "message": str(e) }, 400   
+             return { "message": str(e) }, 405   
 
 class DeploymentLog(DeploymentsResource):
     """Deployment log resource"""
@@ -178,6 +178,6 @@ class DeploymentUndeploy(DeploymentsResource):
             deployment = self.repository.undeploy(deployment)
             return { "deployment": deployment.to_dict() }
         except DeploymentNotRunningException as e:
-            return { "message": str(e) }
+            return { "message": str(e) }, 405
         except DeploymentNotFoundException:
             return self._deployment_not_found_result()

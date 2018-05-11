@@ -70,15 +70,15 @@ def get_app():
             })
         )
 
-    @app.route("/api/development/authenticate")
-    def authenticate_dev():
-        name = "Tom Bombadil"
-        email = "tom@bombadil.com"
-        id = "some_shibboleth_id_of_the_user"
+    #@app.route("/api/development/authenticate")
+    #def authenticate_dev():
+    #    name = "Tom Bombadil"
+    #    email = "tom@bombadil.com"
+    #    id = "some_shibboleth_id_of_the_user"
 
-        return jsonify({ 
-            "token": create_jwt(identity={ "id": id, "name": name, "email": email }) 
-        })
+    #    return jsonify({ 
+    #        "token": create_jwt(identity={ "id": id, "name": name, "email": email }) 
+    #    })
 
     # current user identity
     api.add_resource(IdentityResource, "/users/me")
