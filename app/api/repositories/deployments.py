@@ -26,7 +26,6 @@ class DeploymentsRepository:
                 .order_by(DeploymentEntity.id.desc()).limit(limit).offset(offset).all()
         elif running is False:
             # filter_term is used in history
-            print(filter_term)
             return DeploymentEntity.query.filter_by(user_id=user_id) \
                 .filter(DeploymentEntity.status.in_(const.STATUSES_PAST)) \
                 .filter(DeploymentEntity.name.contains(filter_term)) \
