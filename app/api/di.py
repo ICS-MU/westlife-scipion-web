@@ -7,7 +7,7 @@ class FactoriesContainer(containers.DeclarativeContainer):
     deployments_factory = providers.Singleton(DeploymentEntityFactory)
 
 class RepositoriesContainer(containers.DeclarativeContainer):
-    deployments_repository = providers.Singleton(DeploymentsRepository, factory=FactoriesContainer.deployments_factory())
+    deployments_repository = providers.Singleton(DeploymentsRepository)
     templates_repository = providers.Singleton(TemplatesRepository)
 
 class ValidatorsContainer(containers.DeclarativeContainer):
