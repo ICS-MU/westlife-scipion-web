@@ -1,7 +1,7 @@
 import os
 from flask import make_response
 from typing import List
-from api.entities.deployment import DeploymentEntity, DeploymentEntityFactory
+from api.entities.deployment import DeploymentEntity
 from api.utils.common_validators import BaseEntityValidator, ValidatorException
 import api.constants as const
 from api.database import db
@@ -9,9 +9,6 @@ from datetime import datetime
 
 class DeploymentsRepository:
     """Deployments repository"""
-
-    def __init__(self, factory: DeploymentEntityFactory):
-        self.factory = factory
 
     def get_by_id(self, deployment_id: int) -> DeploymentEntity:
         deployment = DeploymentEntity.query.get(deployment_id)
