@@ -74,6 +74,7 @@
       - undeploy_scipion.py
       - init_templates.py
       - init_example_data.py
+      - occi_list_ext.py
 
   - name: Copy and template bash scripts
     template:
@@ -86,6 +87,20 @@
       - {src: "{{ be_src_dir }}renew_proxy.j2",dest: "{{ scripts_dir }}renew_proxy.sh"}
       - {src: "{{ be_src_dir }}deploy_scipion.j2",dest: "{{ scripts_dir }}deploy_scipion.sh"}
       - {src: "{{ be_src_dir }}undeploy_scipion.j2",dest: "{{ scripts_dir }}undeploy_scipion.sh"}
+      
+  - name: Copy occi shortcuts
+    copy:
+      src: "{{ be_src_dir }}{{ item }}"
+      dest: "/usr/local/bin"
+      owner: "{{be_user}}"
+      group: "{{be_group}}"
+      mode: 0774
+    with_items:
+      - occi_del
+      - occi_desc
+      - occi_list
+
+      
 
 #  - name: Clone repository to template dir
 #    git:
