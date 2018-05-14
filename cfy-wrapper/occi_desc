@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+occi --endpoint "https://carach5.ics.muni.cz:11443" --auth x509 --user-cred /tmp/x509up_u1000 --action describe --voms --resource $1
