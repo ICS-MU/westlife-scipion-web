@@ -25,6 +25,11 @@ class DeploymentForm extends Component {
     }
   }
 
+  /*
+   * Function called on form submit, validates the data
+   *
+   * @param {object}  data  Form data
+   */
   onSubmit = (data) => {
     if(!this.state.selectedTemplate) {
       this.setState({
@@ -35,10 +40,18 @@ class DeploymentForm extends Component {
     }
   }
 
+  /*
+   * Form cancel button click function
+   */
   onCancelButtonClick = () => {
     this.props.handleRequestClose()
   }
 
+  /*
+   * Virtual machine's template selection handler
+   *
+   * @param {integer} templateId  The ID of the template
+   */
   selectTemplate = (templateId) => () => {
     this.setState({
       selectedTemplate: templateId,

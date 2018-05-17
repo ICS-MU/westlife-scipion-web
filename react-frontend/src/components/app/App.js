@@ -53,11 +53,17 @@ const SnackbarText = (props) => {
 const App = (props) => {
   const { notifications } = props
 
+  /*
+   * Hides success notification snackbar
+   */
   function hideSuccessSnackbar() {
     const { hideSuccess } = props
     hideSuccess()
   }
 
+  /*
+   * Hides error notification snackbar
+   */
   function hideErrorSnackbar() {
     const { hideError } = props
     hideError()

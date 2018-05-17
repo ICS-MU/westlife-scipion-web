@@ -16,8 +16,21 @@ axios.defaults.headers.common = {
   'Content-Type': 'application/json'
 }
 
+/*
+ * Response success handler returns data or empty object on success request
+ *
+ * @param   {object}  response  Response from the server
+ * @return  {object}  Response data or empty object
+ */
 const responseSuccessHandler = (response) => response.data || {}
 
+/*
+ * Response error handler dispatches the error message to the redux state. It logouts
+ * the user if the response status is 401.
+ *
+ * @param {object}  error Error response from the server
+ * @throw {object}  error Error object
+ */
 const responseErrorHandler = (error) => {
   store.dispatch(showError(_.get(error, 'response.data.message', 'Connection failed')))
 
@@ -28,6 +41,16 @@ const responseErrorHandler = (error) => {
   throw error
 }
 
+/*
+ * Api request factory, it makes an api call base on the given params
+ *
+ * @param   {string}    method    Request's method (GET, POST etc.)
+ * @param   {string}    url       Request's url
+ * @param   {object}    body      POST/PATCH data or GET params
+ * @param   {boolean}   useToken  Specifies if token is used
+ * @param   {string}    ownToken  Token to be used, otherwise it uses token from redux store
+ * @return  {function}  Axios api call function, success/error handlers are called
+ */
 const requestFactory = (method, url, body = {}, useToken = true, ownToken = '') => {
   const config = {
     headers: {}
@@ -53,6 +76,9 @@ const requestFactory = (method, url, body = {}, useToken = true, ownToken = '') 
     .catch(responseErrorHandler)
 }
 
+/*
+ * Api calls functions
+ */
 export function api() {
   return {
     user: {

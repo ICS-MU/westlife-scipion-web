@@ -21,6 +21,9 @@ class DeploymentLogDrawer extends Component {
         }
     }
 
+    /*
+     * Periodically retrieves deployment's log file
+     */
     fetchLog = () => {
         const { open, deployment } = this.props
         if(open) {

@@ -16,10 +16,16 @@ import logo from '../../../../images/west-life_logo.png'
 
 
 class HeaderContainer extends Component {
+  /*
+   * Logouts the user
+   */
   logout = () => {
     this.props.logout()
   }
 
+  /*
+   * Renders the navigation menu (back button if we are on subpage)
+   */
   renderNav = () => {
     const previous = getRoutePrevious(this.props.location.pathname)
     if(previous) {

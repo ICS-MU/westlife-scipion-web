@@ -17,6 +17,12 @@ class DeploymentRedeploy extends Component {
     }
   }
 
+  /*
+   * Form submit handler, redeploys the deployment
+   *
+   * @param {object}  data        New deployment's data
+   * @param {integer} templateId  ID of the VM's template
+   */
   onSubmit = (data, templateId) => {
     const { handleRequestClose, createDeployment, showSuccess } = this.props
     this.setState({ submitDisabled: true })

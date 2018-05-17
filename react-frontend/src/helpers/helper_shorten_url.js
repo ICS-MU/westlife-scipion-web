@@ -1,3 +1,9 @@
+/*
+ * Shortens url if it's too long
+ *
+ * @param   {string}    url URL to be shorten
+ * @return  {string}    Shortened URL
+ */
 export const shortenUrl = (url) => {
     if(url.length < 33) {
         return url

@@ -62,6 +62,11 @@ class Dashboard extends Component {
     }
   }
 
+  /*
+   * Opens the undeploy modal
+   *
+   * @param {object}  deployment  Deployment to undeploy
+   */
   openUndeployDialog = (deployment) => (evt) => {
     evt.stopPropagation()
     this.setState({
@@ -72,6 +77,9 @@ class Dashboard extends Component {
     })
   }
 
+  /*
+   * Closes the undeploy modal
+   */
   closeUndeployDialog = () => {
     this.setState({
       undeployDialog: {
@@ -81,6 +89,9 @@ class Dashboard extends Component {
     })
   }
 
+  /*
+   * Confirms the deployment undeploy procedure
+   */
   undeployDeploymentConfirm = () => {
     const { undeployDeployment, showSuccess } = this.props
     undeployDeployment(this.state.undeployDialog.item.id)
@@ -91,6 +102,11 @@ class Dashboard extends Component {
       .catch(_.noop)
   }
 
+  /*
+   * Opens the history delete dialog
+   *
+   * @param {object}  deployment  Deployment history item to be deleted
+   */
   openDeleteDialog = (deployment) => (evt) => {
     evt.stopPropagation()
     this.setState({
@@ -101,6 +117,9 @@ class Dashboard extends Component {
     })
   }
 
+  /*
+   * Closes the history delete modal
+   */
   closeDeleteDialog = () => {
     this.setState({
       deleteDialog: {
@@ -110,6 +129,9 @@ class Dashboard extends Component {
     })
   }
 
+  /*
+   * Confirms the deployment history item deletion
+   */
   deleteDeploymentConfirm = () => {
     const { deletePastDeployment, showSuccess } = this.props
     deletePastDeployment(this.state.deleteDialog.item.id)
@@ -120,6 +142,9 @@ class Dashboard extends Component {
       .catch(_.noop)
   }
 
+  /*
+   * Closes deployment form drawer
+   */
   deploymentFormDrawerClose = () => {
     this.setState({
       deploymentFormDrawer: {
@@ -130,6 +155,13 @@ class Dashboard extends Component {
     })
   }
 
+  /*
+   * Opens deployment form drawer
+   *
+   * @param {string}  method      Form drawer method to be specified, possible values are located 
+   * inside constants.js file in DRAWER constant
+   * @param {object}  deployment  Prefill the form with deployment's values
+   */
   deploymentFormDrawerOpen = (method, deployment = null) => (evt) => {
     evt.stopPropagation()
     this.setState({
@@ -141,6 +173,9 @@ class Dashboard extends Component {
     })
   }
 
+  /*
+   * Closes deployment's log drawer
+   */
   deploymentLogDrawerClose = () => {
     this.setState({
       deploymentLogDrawer: {
@@ -150,6 +185,11 @@ class Dashboard extends Component {
     })
   }
 
+  /*
+   * Opens deployment's log in drawer
+   *
+   * @param {object}  deployment  Deployment
+   */
   deploymentLogDrawerOpen = (deployment) => (evt) => {
     evt.stopPropagation()
     this.setState({
@@ -160,12 +200,20 @@ class Dashboard extends Component {
     })
   }
 
+  /*
+   * Shows the deployment's detail page
+   *
+   * @param {object}  deployment  Deployment to be shown
+   */
   showDeployment = (deployment) => () => {
     if(deployment.status === DEPLOYMENT.STATUS.DEPLOYED) {
       this.props.history.push(getRoutePath('deployment.show', { id: deployment.id }))
     }
   }
 
+  /*
+   * Loads more history items
+   */
   loadMorePastDeployments = () => {
     const { deployments, listPastDeployments } = this.props
     const offset = deployments.past.currentOffset, limit = DEPLOYMENT.LIST.LOADING_LIMIT
@@ -184,6 +232,9 @@ class Dashboard extends Component {
     }
   }
 
+  /*
+   * Renders waypoint, which executes function onEnter
+   */
   renderWaypoint = () => {
     const { deployments } = this.props
 
@@ -197,6 +248,9 @@ class Dashboard extends Component {
     }
   }
 
+  /*
+   * On Filter Input change event handler
+   */
   onFilterInputChange = (evt) => {
     const { filter } = this.state
     if(filter.typingTimeout) {
@@ -213,6 +267,10 @@ class Dashboard extends Component {
     })
   } 
 
+  /*
+   * Filters the history of past items based on filter term stored
+   * in component's state
+   */
   filterHistory = () => {
     const { listPastDeployments } = this.props
     const { filter } = this.state
@@ -231,6 +289,13 @@ class Dashboard extends Component {
       .catch(_.noop)
   }
 
+  /*
+   * Fetches running deployments
+   *
+   * @param {boolean} promise Specifies, if promise function should be used. It's not 
+   * recommended to use promise on periodic data refresh calls, because api calls with
+   * promises displays global loading bar.
+   */
   fetchRunningDeployments = (promise = false) => {
     const { listRunningDeployments } = this.props
     listRunningDeployments(promise)

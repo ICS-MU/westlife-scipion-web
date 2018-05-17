@@ -29,6 +29,11 @@ class Login extends Component {
     window.removeEventListener('storage', this.tokenReceive)
   }
 
+  /*
+   * Check's if the event object contains token, then logins the user
+   *
+   * @param {object}  evt Browser's localStorage event
+   */
   tokenReceive = (evt) => {
     if(evt.key !== 'token') 
       return
@@ -42,11 +47,17 @@ class Login extends Component {
       })
   }
 
+  /*
+   * Opens the login tab
+   */
   openLoginTab = () => {
     const loginTab = window.open( `${BASE_API_URL}/authenticate`)
     this.setState({ loginTab })
   }
 
+  /*
+   * Closes the login tab
+   */
   closeLoginTab = () => {
     this.state.loginTab.close()
     this.setState({ loginTab: null })

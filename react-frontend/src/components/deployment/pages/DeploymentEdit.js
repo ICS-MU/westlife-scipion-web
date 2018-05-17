@@ -17,6 +17,12 @@ class DeploymentEdit extends Component {
     }
   }
 
+  /*
+   * Form submit handler, edits the deployment
+   *
+   * @param {object}  data        Deployment's data
+   * @param {integer} templateId  ID of the VM's template
+   */
   onSubmit = (data, templateId) => {
     const { handleRequestClose, showSuccess, modifyDeployment, deployment } = this.props
 

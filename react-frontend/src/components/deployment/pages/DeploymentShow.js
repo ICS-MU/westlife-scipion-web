@@ -50,6 +50,9 @@ class DeploymentShow extends Component {
     }
   }
 
+  /*
+   * Opens undeploy modal
+   */
   openUndeployDialog = () => {
     this.setState({
       undeployDialog: {
@@ -58,6 +61,9 @@ class DeploymentShow extends Component {
     })
   }
 
+  /*
+   * Closes undeploy modal
+   */
   closeUndeployDialog = () => {
     this.setState({
       undeployDialog: {
@@ -66,6 +72,9 @@ class DeploymentShow extends Component {
     })
   }
 
+  /*
+   * Confirms the deployment's undeploy action
+   */
   confirmUndeployDeployment = () => {
     const { undeployDeployment, deployment, showSuccess, history} = this.props
     undeployDeployment(deployment.id)
@@ -76,6 +85,9 @@ class DeploymentShow extends Component {
       .catch(_.noop)
   }
 
+  /*
+   * Opens edit deployment form
+   */
   openEditDeploymentDialog = () => {
     this.setState({
       deploymentFormDrawer: {
@@ -84,6 +96,9 @@ class DeploymentShow extends Component {
     })
   }
 
+  /*
+   * Closes edit deployment form
+   */
   closeEditDeploymentDialog = () => {
     this.setState({
       deploymentFormDrawer: {
@@ -92,6 +107,9 @@ class DeploymentShow extends Component {
     })
   }
 
+  /*
+   * Opens deployment's log
+   */
   deploymentLogDrawerClose = () => {
     this.setState({
       deploymentLogDrawer: {
@@ -100,6 +118,9 @@ class DeploymentShow extends Component {
     })
   }
 
+  /*
+   * Closes deployment's log
+   */
   deploymentLogDrawerOpen = () => {
     this.setState({
       deploymentLogDrawer: {
@@ -108,10 +129,18 @@ class DeploymentShow extends Component {
     })
   }
 
+  /*
+   * Redirects user to the given path
+   *
+   * @param {string}  pathname Route's name
+   */
   transitionTo = (path) => () => {
     this.props.history.push(getRoutePath(path))
   }
 
+  /*
+   * Renders back to Dashboard button
+   */
   renderBackDashboardButton = () => {
     return (
       <Typography align="center" className="back-button-wrapper">
@@ -126,6 +155,9 @@ class DeploymentShow extends Component {
     )
   }
 
+  /*
+   * NoVNC connected event's function
+   */
   noVNCconnected = () => {
     this.setState({
       noVNC: {
@@ -134,6 +166,11 @@ class DeploymentShow extends Component {
     })
   }
 
+  /*
+   * NoVNC disconnected event's function
+   *
+   * @param {object}  evt Event
+   */
   noVNCdisconnected = (evt) => {
     if(!evt.detail.clean) {
       this.setState({
@@ -145,6 +182,11 @@ class DeploymentShow extends Component {
     }
   }
 
+  /*
+   * Initializes deployment's noVNC remote desktop
+   *
+   * @param {object}  deployment  Deployment to be connected
+   */
   initNoVNC = (deployment) => {
     if(this.rfb === null) {
       const url = `${ window.location.protocol === 'https:' ? 'wss' : 'ws' }://${ deployment.olinip }`
