@@ -47,7 +47,7 @@ class DeploymentRedeploy extends Component {
         actionType={ FORM.ACTION_TYPE.REDEPLOY }
         handleRequestClose={ handleRequestClose }
         submitDisabled={ submitDisabled }
-        initialValues={ _.pick(deployment, ['name', 'days_duration', 'data_url', 'template_id']) }
+        initialValues={ _.pick(deployment, ['name', 'days_duration', 'data_url', 'onedata_access_token', 'template_id']) }
       />
     )
   }

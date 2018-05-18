@@ -86,6 +86,8 @@ class DeploymentsValidator(BaseEntityValidator):
     def validateUpdate(self, prev_deployment: DeploymentEntity, updated_deployment: DeploymentEntity):
         if prev_deployment.get_data_url() != updated_deployment.get_data_url():
             raise ValidatorException("Deployment's data url cannot be changed")
+        if prev_deployment.get_onedata_access_token() != updated_deployment.get_onedata_access_token():
+            raise ValidatorException("Deployment's Onedata access token cannot be changed")
         if prev_deployment.get_template_id() != updated_deployment.get_template_id():
             raise ValidatorException("Deployment's template cannot be changed")
 

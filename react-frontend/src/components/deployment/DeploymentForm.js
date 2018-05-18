@@ -153,7 +153,15 @@ class DeploymentForm extends Component {
               <Field
                 name="data_url"
                 component={ TextField }
-                label="OneData URL"
+                label="Onedata URL"
+                className="text-input"
+                fullWidth={ true }
+                disabled={ isEdit }
+              />
+              <Field
+                name="onedata_access_token"
+                component={ TextField }
+                label="Onedata access token"
                 className="text-input"
                 fullWidth={ true }
                 disabled={ isEdit }
