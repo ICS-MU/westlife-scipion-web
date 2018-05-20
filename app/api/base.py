@@ -30,6 +30,9 @@ class ApiResource(Resource):
         return {"message": "Resource not allowed"}, 403
 
     def _check_data_forbidden_items(self, data: dict, forbidden_items: List[str] = None):
+        """
+        Throws ValidatorException if data contains forbidden items
+        """
         if forbidden_items is None:
             forbidden_items = self.forbidden_data_items
         for forbidden_item in forbidden_items:
@@ -37,6 +40,9 @@ class ApiResource(Resource):
                 raise ValidatorException('Data item "' + forbidden_item + '" is not allowed.')
 
     def _check_data_mandatory_items(self, data: dict, mandatory_items: List[str] = None):
+        """
+        Throws ValidatorException if data doesn't contain mandatory items
+        """
         if mandatory_items is None:
             mandatory_items = self.mandatory_data_items
         for mandatory_item in mandatory_items:
@@ -54,6 +60,10 @@ class ApiResource(Resource):
             BoundaryValidator.validate("offset", offset, 0)
 
     def _get_selection_params(self) -> dict:
+        """
+        Returns dictionary object containing GET method URL params
+        offset and limit
+        """
         limit = request.args.get("limit", type=int)
         offset = request.args.get("offset", type=int)
         self._check_selection_boundaries(limit, offset)

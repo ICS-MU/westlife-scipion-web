@@ -1,13 +1,17 @@
 from abc import ABC
 
 class Validator(ABC):
-    """Abstract descedant of the validators"""
+    """Abstract parent of the validators"""
 
 class BoundaryValidator(Validator):
     """Boundary validator"""
 
     @staticmethod
     def validate(item_name: str, value: int, min_value: int = None, max_value: int = None):
+        """
+        Throws BoundaryValidatorException if value is smaller than min_value or 
+        value is greater than max_value
+        """
         if min_value is not None and value < min_value:
             raise BoundaryValidationException(item_name + " minimal value is " + str(min_value))
         if max_value is not None and value > max_value:
@@ -20,6 +24,10 @@ class BaseEntityValidator(Validator):
 
     def _validate_string_size(self, string: str, param_name: str = None, min_size: int = None, max_size: int = None,
                               can_be_none: bool = False):
+        """
+        Validates string size based on the min_size, max_size and can_be_none parameters. 
+        It throws BoundaryValidationException if validation fails.
+        """
         if string is None and can_be_none:
             return
         string_length = len(string) if string is not None else 0
@@ -36,6 +44,10 @@ class BaseEntityValidator(Validator):
 
     def _validate_integer_range(self, value: int, param_name: str = None, min_size: int = None, max_size: int = None,
                                 can_be_none: bool = False):
+        """
+        Checks if the given integer value is in range defined by min_size and max_size parameters.
+        It throws BoundaryValidationException if validation fails.
+        """
         if value is None and can_be_none:
             return
         if param_name is None:
@@ -46,6 +58,10 @@ class BaseEntityValidator(Validator):
             raise BoundaryValidationException(param_name + " value cannot be greater than " + str(max_size))
 
     def _validate_value_in_list(self, value, values_list: list, param_name: str = None, can_be_none: bool = False):
+        """
+        Checks if the given value is in values_list.
+        It throws ValueNotInListException if validation fails.
+        """
         if value is None and can_be_none:
             return
         if param_name is None:
@@ -61,11 +77,19 @@ class BaseEntityValidator(Validator):
             )
 
     def _validate_int_boolean(self, value: int, param_name: str = None, can_be_none: bool = False):
+        """
+        Checks if the given integer value corresponds to boolean value [0,1].
+        It throws ValueNotInListException if validation fails
+        """
         if param_name is None:
             param_name = self.DEFAULT_PARAM_NAME
         self._validate_value_in_list(value, [0, 1], param_name, can_be_none)
 
     def _validate_data_type(self, item, item_class, param_name: str = None, can_be_none: bool = False):
+        """
+        Checks if the given item is instance of the item_class.
+        It throws InvalidDataTypeException if validation fails.
+        """
         if item is None and can_be_none:
             return
         if param_name is None:

@@ -78,12 +78,21 @@ class DeploymentsValidator(BaseEntityValidator):
     DAYS_DURATION_MAX_SIZE = 30
 
     def validate(self, deployment: DeploymentEntity):
+        """
+        Validates deployment's name size, checks if template_id and days_duration are integers
+        and validates days_duration range.
+        It throws multiple expections based on used BaseEntityValidator's methods.
+        """
         self._validate_string_size(deployment.get_name(), "Deployment's name", 1, self.NAME_MAX_SIZE)
         self._validate_data_type(deployment.get_template_id(), int, "Deployment's template id")
         self._validate_data_type(deployment.get_days_duration(), int, "Deployment's duration")
         self._validate_integer_range(deployment.get_days_duration(), "Deployment's duration", 1, self.DAYS_DURATION_MAX_SIZE)
 
     def validateUpdate(self, prev_deployment: DeploymentEntity, updated_deployment: DeploymentEntity):
+        """
+        Checks if updated_deployment contains valid modifications, otherwise
+        it throws ValidatorException.
+        """
         if prev_deployment.get_data_url() != updated_deployment.get_data_url():
             raise ValidatorException("Deployment's data url cannot be changed")
         if prev_deployment.get_onedata_access_token() != updated_deployment.get_onedata_access_token():

@@ -3,6 +3,7 @@ from api.utils.dictionary import Dictionary
 from api.database import db
 
 class TemplateEntity(BaseEntity):
+    """Template entity"""
     __tablename__ = "templates"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20), nullable=False)

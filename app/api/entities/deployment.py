@@ -130,6 +130,9 @@ class DeploymentEntityFactory(BaseEntityFactory):
     optional_items = ["data_url", "onedata_access_token"]
 
     def create_from_post_data(self, data: dict, check_mandatory_items: bool = True) -> DeploymentEntity:
+        """
+        Creates DeploymentEntity from the given data
+        """
         try:
             # remove None data items
             data = Dictionary.delete_none_values(data)
@@ -154,4 +157,5 @@ class DeploymentEntityFactory(BaseEntityFactory):
             raise DeploymentEntityFactoryException("Invalid JSON in request")
 
 class DeploymentEntityFactoryException(BaseEntityFactoryException):
+    """Deployment entity factory exception"""
     pass
