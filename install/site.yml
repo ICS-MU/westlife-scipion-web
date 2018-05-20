@@ -1,3 +1,5 @@
+- include: conf_apache.yml
+- include: occi.yml
 - include: api.yml
 - include: backend.yml
-- include: occi.yml
+
