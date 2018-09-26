@@ -65,7 +65,7 @@ def set_template_size(id_to_set_size, size_to_be_set):
         f_obj.write(newText)
 
 
-def set_opendata_parameters(id_to_set_opendata, opendata_url):
+def set_opendata_parameters(id_to_set_opendata, opendata_url, onedata_token):
     """Setting opendata parameters for deployment"""
 
     logger.debug("Setting Opendata parameters for %s", str(id_to_set_size))
@@ -76,6 +76,7 @@ def set_opendata_parameters(id_to_set_opendata, opendata_url):
         newText = f_obj.read()
     newText = newText.replace(const.ONEDATA_HOST_PLACEHOLDER, onedata_host)
     newText = newText.replace(const.ONEDATA_WORKSPACE_PLACEHOLDER, onedata_workspace)
+    newText = newText.replace(const.ONEDATA_TOKEN_PLACEHOLDER, onedata_token)
     with open(replace_file, "w") as f_obj:
         f_obj.write(newText)
 
@@ -95,7 +96,7 @@ def deploy_scipion(id_to_deploy):
 
     set_template_size(id_to_deploy, deployment['name'])
 #TODO
-    set_opendata_parameters(id_to_deploy, deployments['onedata_url'])
+    set_opendata_parameters(id_to_deploy, deployments['data_url'], deployments['onedata_access_token'])
     logger.debug("Starting deployment process %s", str(id_to_deploy))
     os_result = os.system("/bin/bash " + const.DEPLOY_SCRIPT_FILE + " " + str(id_to_deploy))
     logger.debug("Return value is: %s", str(os_result))

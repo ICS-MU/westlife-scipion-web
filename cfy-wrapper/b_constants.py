@@ -20,9 +20,9 @@ IMAGES_FILE = SCIPION_BACK_DIR + 'images.json'
 
 OLIN_RESOURCE_TPL_PLACEHOLDER = "medium2change"
 VNC_PASSWORD_PLACEHOLDER = "Scipion4All"
-ONEDATA_HOST_PLACEHOLDER = "one_data_host_2_change"
-ONEDATA_WORKSPACE_PLACEHOLDER = "one_data_workspace_2_change"
-
+ONEDATA_HOST_PLACEHOLDER = "onedata_host_2_change"
+ONEDATA_WORKSPACE_PLACEHOLDER = "onedata_workspace_2_change"
+ONEDATA_TOKEN_PLACEHOLDER = "onedata_token_2_change"
 
 STATUS_TO_DEPLOY = "to_deploy"
 STATUS_DEPLOYING = "deploying"
