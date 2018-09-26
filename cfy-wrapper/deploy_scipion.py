@@ -65,6 +65,21 @@ def set_template_size(id_to_set_size, size_to_be_set):
         f_obj.write(newText)
 
 
+def set_opendata_parameters(id_to_set_opendata, opendata_url):
+    """Setting opendata parameters for deployment"""
+
+    logger.debug("Setting Opendata parameters for %s", str(id_to_set_size))
+    replace_file = const.DEPLOYMENTS_DIR + str(id_to_set_opendata) + "/scipion-inputs.yaml.m4"
+#TODO Split to be changed
+    onedata_host, onedata_workspace = opendata_url.split("/")
+    with open(replace_file, "r") as f_obj:
+        newText = f_obj.read()
+    newText = newText.replace(const.ONEDATA_HOST_PLACEHOLDER, onedata_host)
+    newText = newText.replace(const.ONEDATA_WORKSPACE_PLACEHOLDER, onedata_workspace)
+    with open(replace_file, "w") as f_obj:
+        f_obj.write(newText)
+
+
 def deploy_scipion(id_to_deploy):
     """Deploy Scipion"""
 
@@ -79,6 +94,8 @@ def deploy_scipion(id_to_deploy):
     set_vnc_password(id_to_deploy)
 
     set_template_size(id_to_deploy, deployment['name'])
+#TODO
+    set_opendata_parameters(id_to_deploy, deployments['onedata_url'])
     logger.debug("Starting deployment process %s", str(id_to_deploy))
     os_result = os.system("/bin/bash " + const.DEPLOY_SCRIPT_FILE + " " + str(id_to_deploy))
     logger.debug("Return value is: %s", str(os_result))
