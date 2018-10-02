@@ -65,13 +65,22 @@ def set_template_size(id_to_set_size, size_to_be_set):
         f_obj.write(newText)
 
 
-def set_opendata_parameters(id_to_set_opendata, opendata_url, onedata_token):
-    """Setting opendata parameters for deployment"""
+def set_onedata_parameters(id_to_set_onedata, onedata_url, onedata_token):
+    """Setting Onedata parameters for deployment"""
 
-    logger.debug("Setting Opendata parameters for %s", str(id_to_set_size))
-    replace_file = const.DEPLOYMENTS_DIR + str(id_to_set_opendata) + "/scipion-inputs.yaml.m4"
-#TODO Split to be changed
-    onedata_host, onedata_workspace = opendata_url.split("/")
+    logger.debug("Setting Onedata parameters for %s", str(id_to_set_onedata))
+    replace_file = const.DEPLOYMENTS_DIR + str(id_to_set_onedata) + "/scipion-inputs.yaml.m4"
+    onedata_url_parts = onedata_url.split("/")
+    
+    if onedata_url_parts[0] == "http:" or onedata_url_parts[0] == "https:":
+        logger.debug("Setting Onedata parameters: http(s) is present.")
+        onedata_host = onedata_url_parts[2]
+        onedata_workspace = onedata_url_parts[3]
+    else:
+        logger.debug("Setting Onedata parameters: http(s) is not present.")
+        onedata_host = onedata_url_parts[0]
+        onedata_workspace = onedata_url_parts[1]
+
     with open(replace_file, "r") as f_obj:
         newText = f_obj.read()
     newText = newText.replace(const.ONEDATA_HOST_PLACEHOLDER, onedata_host)
@@ -96,12 +105,11 @@ def deploy_scipion(id_to_deploy):
 
     set_template_size(id_to_deploy, deployment['name'])
 #TODO
-    set_opendata_parameters(id_to_deploy, deployments['data_url'], deployments['onedata_access_token'])
+    set_onedata_parameters(id_to_deploy, deployment['data_url'], deployment['onedata_access_token'])
     logger.debug("Starting deployment process %s", str(id_to_deploy))
     os_result = os.system("/bin/bash " + const.DEPLOY_SCRIPT_FILE + " " + str(id_to_deploy))
     logger.debug("Return value is: %s", str(os_result))
     logger.debug("Updating records for %s", id_to_deploy)
-    # TODO: map onedata drive
     return os_result
 
 
