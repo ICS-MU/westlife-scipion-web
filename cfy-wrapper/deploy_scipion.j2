@@ -7,4 +7,4 @@ cd $DEPLOYMENTS_DIR/$1
 source /home/{{ be_user }}/cfy/bin/activate /log.txt 2>&1
 make cfy-deploy >> log.txt 2>&1
 echo $? >> makeresult.txt
-make cfy-outputs | tail -n +2 > outputs.json
+make cfy-outputs | awk 'BEGIN { json=0 } /^{/ { json=1 } { if (json) print }' > outputs.json
