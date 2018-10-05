@@ -34,7 +34,7 @@ def un_deploy_scipion(id_to_delete):
 
 def is_scipion_deleted(id_to_delete):
     """ Returns result of un-deployment process. """
-    ok_result_string = "CFY <local> 'uninstall' workflow execution succeeded"
+    ok_result_string = "> 'uninstall' workflow execution succeeded"
     result_file = const.DEPLOYMENTS_DIR + str(id_to_delete) + "/undelete_log.txt"
 
     try:
