@@ -71,15 +71,15 @@ def set_onedata_parameters(id_to_set_onedata, onedata_url, onedata_token):
     logger.debug("Setting Onedata parameters for %s", str(id_to_set_onedata))
     replace_file = const.DEPLOYMENTS_DIR + str(id_to_set_onedata) + "/scipion-inputs.yaml.m4"
     onedata_url_parts = onedata_url.split("/")
-    
+
     if onedata_url_parts[0] == "http:" or onedata_url_parts[0] == "https:":
         logger.debug("Setting Onedata parameters: http(s) is present.")
         onedata_host = onedata_url_parts[2]
-        onedata_workspace = onedata_url_parts[3]
+        onedata_workspace = "/".join(onedata_url_parts[3:])
     else:
         logger.debug("Setting Onedata parameters: http(s) is not present.")
         onedata_host = onedata_url_parts[0]
-        onedata_workspace = onedata_url_parts[1]
+        onedata_workspace = "/".join(onedata_url_parts[1:])
 
     with open(replace_file, "r") as f_obj:
         newText = f_obj.read()
