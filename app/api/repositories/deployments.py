@@ -36,14 +36,11 @@ class DeploymentsRepository:
         path_to_log = const.DEPLOYMENTS_DIR + str(deployment_id) + "/log.txt"
         if os.path.isfile(path_to_log):
             log = ""
-            with open(path_to_log, "r") as f_log:
-                log = f_log.read()
+            with open(path_to_log, "r", encoding="utf-8") as f_log:
+                log = f_log.read().encode("utf-8")
             return make_response(log, 200)
         else:
             raise DeploymentLogNotFoundException
-
-        with open(path_to_log, "r") as f_log:
-            log = f_log.read()
 
     def store(self, deployment_new: DeploymentEntity) -> DeploymentEntity:
         deployment = deployment_new
