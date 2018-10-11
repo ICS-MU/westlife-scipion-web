@@ -5,6 +5,11 @@ DEPLOYMENTS_DIR="{{ deployments_dir }}"
 
 cd $DEPLOYMENTS_DIR/$1
 source /home/{{ be_user }}/cfy/bin/activate /log.txt 2>&1
+
+export CFY_BLUEPRINT="scipion${1}"
+export CFM_BLUEPRINT="${CFY_BLUEPRINT}"
+export CFM_DEPLOYMENT="${CFY_BLUEPRINT}"
+
 make cfy-deploy >> log.txt 2>&1
 echo $? >> makeresult.txt
 make cfy-outputs | awk 'BEGIN { json=0 } /^{/ { json=1 } { if (json) print }' > outputs.json
