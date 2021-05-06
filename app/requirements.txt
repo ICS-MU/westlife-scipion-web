@@ -2,7 +2,7 @@ aniso8601==3.0.0
 click==6.7
 dependency-injector==3.11.3
 Flask==0.12.2
-Flask-Cors==3.0.3
+Flask-Cors==3.0.9
 Flask-JWT-Simple==0.0.3
 Flask-RESTful==0.3.6
 Flask-SQLAlchemy==2.3.2
