@@ -9,7 +9,7 @@
     "lodash": "^4.17.5",
     "material-ui": "1.0.0-beta.36",
     "material-ui-icons": "1.0.0-beta.36",
-    "moment": "^2.22.1",
+    "moment": "^2.29.4",
     "node-sass-chokidar": "0.0.3",
     "npm-run-all": "^4.1.2",
     "react": "^16.3.2",
